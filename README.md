@@ -44,11 +44,11 @@ http://searle.x10host.com/cpm/index.html
 
 
 ## Links:
-Manual - http://www.cpm.z80.de/manuals/cpm22-m.pdf
-Manual - http://www.gaby.de/cpm/manuals/archive/cpm22htm/ch1.htm#Section_1.1
-Software CP/M - http://www.retroarchive.org/cpm/
-ASM - http://www.shaels.net/index.php/cpm80-22-documents/using-cpm/9-asm-utility
-HI-TECH C Compiler (video install) - https://www.youtube.com/watch?v=0QvuoRbig6U
+- Manual - http://www.cpm.z80.de/manuals/cpm22-m.pdf
+- Manual - http://www.gaby.de/cpm/manuals/archive/cpm22htm/ch1.htm#Section_1.1
+- Software CP/M - http://www.retroarchive.org/cpm/
+- ASM - http://www.shaels.net/index.php/cpm80-22-documents/using-cpm/9-asm-utility
+- HI-TECH C Compiler (video install) - https://www.youtube.com/watch?v=0QvuoRbig6U
 
 Testes - https://github.com/diego123cruz/z80-apps
 
