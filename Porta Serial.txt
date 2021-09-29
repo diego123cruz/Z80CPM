@@ -1,0 +1,12 @@
+DTR - Terminal de dados pronto
+DSR - pronto para conjunto de dados
+RTS - Solicitação de envio
+CTS - Limpar para enviar
+Existem várias maneiras de fazer as coisas, porque nunca houve nenhum protocolo incorporado aos padrões. Você usa qualquer "padrão" ad-hoc que seu equipamento implemente.
+
+Apenas com base nos nomes, o RTS/CTS pareceria um ajuste natural. No entanto, é um retrocesso das necessidades que se desenvolveram ao longo do tempo. Esses sinais foram criados no momento em que um terminal envia em lote uma tela cheia de dados, mas o receptor pode não estar pronto, portanto, a necessidade de controle de fluxo. Posteriormente, o problema seria revertido, pois o terminal não conseguia acompanhar os dados vindos do Host, mas os sinais RTS/CTS seguem na direção errada - a interface não é ortogonal e não há sinais correspondentes no sentido oposto. Os fabricantes de equipamentos se adaptaram da melhor maneira possível, incluindo o uso dos sinais DTR e DSR.
+
+
+
+
+Fonte: https://www.ti-enxame.com/pt/serial-port/qual-e-diferenca-entre-o-controle-de-fluxo-dtr-dsr-e-rts-cts/957590997/
