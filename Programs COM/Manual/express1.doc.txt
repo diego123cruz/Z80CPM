@@ -1,0 +1,2323 @@
+Dear Computer Abuser.. ..er, I mean User:
+
+The EXPRESS 1.0 full screen editor on this disk is NOT A TOY. It is a full
+featured screen editor with all the commands the 'big boys' have, plus
+several unique features that make it a must on everybody's system disk.
+
+SPECIAL FEATURES
+
+Just to get your attention in the first 100 words: EXPRESS includes a
+built in macro key translator and editor for reducing long tedious
+operations to a single key. Macro definitions can be saved to a disk
+file for later use.
+
+EXPRESS also can access files in any user area (can your current editor
+be executed from A12: to edit a file in B2: and include into the text a
+file from A15:???) Other features include a built in DIR command that
+shows disk capacity and file sizes (of files in any user area, of
+course), a built in TYPE command (that TYPEs files in any user area, get
+the picture?)
+
+EXPRESS can be installed on any CP/M 2.2 system with at least 48k of
+memory and a terminal with direct cursor addressing. Installation for
+different systems is as simple as picking a name from a menu (or adding
+your own entry to the menu if you have something really obscure.)
+
+
+
+EXPRESS is not a word processor; it was not written for secretaries
+(although they could grow just as fond of it if given the chance).
+EXPRESS was written BY programmers FOR programmers and it shows. Extra
+effort was taken to assure fast operation, efficient use of memory,
+flexibility, configurablity, and of course power.
+
+The Search routines, for instance, went through several different ideas
+and implementations before we finally settled on the fastest. The
+standard BYTE searching benchmark now runs faster with EXPRESS on a 4Mhz
+Z80 than it runs with the Turbo Pascal(tm) editor running on an 8 Mhz
+80186!! The scrolling has been optimized as well; while it is not up to
+the memory mapped speeds of some 'hardware specific' editors  on the
+market, it is much faster than Turbo or WordStar(tm).
+
+
+
+EXPRESS Version 1.0 is a preliminary and limited implementation
+of the EXPRESS full screen editor and is distributed without
+charge, as a sample intended to introduce users to the power and
+potential of the EXPRESS full screen editor. Version 1.0 does not
+contain all the enhancements of Version 2.0. Those functions which
+were not implemented in Version 1.0 are indicated on the command page
+with a (#). A brief list of the version 2.0 enhancements follows:
+
+        * Full use  of 32 user areas
+
+        * Edit files any size (not just limited to memory size)
+
+        * ERASE, COPY and RENAME implemented
+
+        * unlimited number of macro key definitions
+
+        * size of marked text block limited only by memory size
+
+        * full, dynamic (as you type) wordwrap
+
+        * fully definable tab stops
+
+        * Literal or "case ignoring" search
+
+        * Sorted Directory
+
+        * Full 91 page manual included
+
+You are authorized and encouraged to freely copy and distribute copies
+of EXPRESS Version 1.0 to friends and bulletin boards. We believe that
+you should be allowed to use and appreciate a software package before
+having to spend any of your hard-earned money. We ask only that this
+full documentation be included in copies you distribute.
+
+
+WE MUST INSIST THAT EXPRESS 1.0 NOT BE DISTRIBUTED FOR FINANCIAL GAIN.
+
+
+As software users ourselves, we also believe that current software
+prices are much too high for the average computer user. Because of
+this, we are selling EXPRESS version 2.0 for only $34.95, POSTAGE AND
+HANDLING INCLUDED (in USA).
+
+EXPRESS Version 2.0 may be purchased by sending a check or money order
+for $34.95  (postage and handling included) to the address listed
+below. In return, you will receive a disk containing Version 2.0 (or
+the latest version), the full printed documentation and any recent
+user news. You will also be placed on our list of registered users.
+Further information may be obtained from:
+
+
+        TCI
+        17733 205th Ave. NE
+        Woodinville, Washington 98072
+
+
+      EXPRESS (c) Copyright 1984, 1985 TCI  All rights reserved.
+
+
+
+*******************************************************************************
+*                                                                             *
+*                EXPRESS 2.0 Full Screen Editor Overview                      *
+*                                                                             *
+*                                                                             *
+*       * FULL Access to all   32 USER AREAS   with ALL editor commands.      *
+*                                                                             *
+*       * EASILY CONFIGURED   for any Terminal / computer                     *
+*                                                                             *
+*       * Terminal data base for   QUICK and EASY SETUP   for your            *
+*         computer or terminal (over 50 terminals pre-defined)                *
+*                                                                             *
+*       * Flexible terminal definition to easily accomodate a wide range      *
+*         of terminals (even ANSI standard and different screen sizes)        *
+*                                                                             *
+*       * DEFAULT tab stops and MODE SETTINGS   can be setup by the user      *
+*                                                                             *
+*       * USER DEFINABLE   Keyboard command layout                            *
+*         (emulate function and control keys of other editor                  *
+*                                                                             *
+*       * Takes advantage of the POWERFUL string handling                     *
+*         instructions of the Z-80                                            *
+*                                                                             *
+*       * NO LIMIT ON FILE SIZE                                               *
+*                                                                             *
+*       * Easily accomodates lines longer than 80 characters                  *
+*                                                                             *
+*       * FULL RECOVERY FROM DISK FULL   conditions                           *
+*                                                                             *
+*       * FULL CURSOR CONTROL   (and then some!)                              *
+*         (character, word, line, etc)                                        *
+*                                                                             *
+*       * Variable Speed   (FAST!!)  , bidirectional   Auto-Scroll            *
+*                                                                             *
+*       * UNDELETE   word/line/end of line                                    *
+*                                                                             *
+*       * Full complement of   TEXT BLOCK   functions                         *
+*                                                                             *
+*               Block Copy                                                    *
+*               Block Move                                                    *
+*               Block Delete                                                  *
+*               Block Kill                                                    *
+*               Block Save to disk                                            *
+*               Include block from disk                                       *
+*               Block Print                                                   *
+*                                                                             *
+*       * All block functions directly callable from Edit                     *
+*         or Command mode.                                                    *
+*                                                                             *
+*       * CPM functions "outer shell". While editing, you can:                *
+*                                                                             *
+*                 TYPE   any file from any disk/user area                     *
+*                 COPY   any file from/to any disk/user area                  *
+*                 ERASE   any file from any disk/user area                    *
+*                 RENAME   any file in any disk/user area                     *
+*                 DIR  ectory includes file sizes and disk usage for          *
+*                         any disk/user area                                  *
+*                 LOG   any disk/user area as the default                     *
+*                                                                             *
+*******************************************************************************
+
+*******************************************************************************
+*                                                                             *
+*     Built in   MACRO KEY TRANSLATOR                                         *
+*                                                                             *
+*               Any number of input keys translated to any length output      *
+*               (up to 256 characters per macro key)                          *
+*                                                                             *
+*               Errors while defining macro keys can be corrected with        *
+*               a backspace key.                                              *
+*                                                                             *
+*                 UNLIMITED NUMBER   of translations available                *
+*                                                                             *
+*                 SAVE   your definitions on disk for later use               *
+*                                                                             *
+*                 READ   pre-defined keyboard macros from disk                *
+*                                                                             *
+*               Macro key table can be cleared at any time to                 *
+*               reclaim use of memory                                         *
+*                                                                             *
+*       * SEARCH and REPLACE   Commands                                       *
+*                                                                             *
+*                 FAST !!!   We use the power of the Z-80 instruction set     *
+*                                                                             *
+*               Global or selective replace                                   *
+*                                                                             *
+*               Literal or "Ignore Case" search                               *
+*                                                                             *
+*               Goto   PAGE   "N" command                                     *
+*                                                                             *
+*               Goto   LINE   "N" command                                     *
+*                                                                             *
+*       * WORD WRAP   mode functions                                          *
+*                                                                             *
+*               Dynamic   WRAP/UNWRAP mode   while you type  , as well as     *
+*               an Explicit reformat command                                  *
+*                                                                             *
+*               SET LEFT AND RIGHT MARGINS   to any column                    *
+*                                                                             *
+*                                                                             *
+*       * TAB   functions                                                     *
+*                                                                             *
+*               Tabs are easy to setup,   explicit columns or incremental     *
+*                                                                             *
+*               Tab characters can actually be inserted in file               *
+*               or spaces used instead (ala Turbo)                            *
+*                                                                             *
+*       * Without exiting the editor   you can:                               *
+*                                                                             *
+*               END  - edit of current file to edit another (NEW)             *
+*               QNEW - Abort edit of this file and edit another               *
+*               SAVE a copy of your current work on disk and be               *
+*                    returned to the   exact place you left off               *
+*               Goto the   "HEAD"   of the file (multiple buffers)            *
+*                                                                             *
+*       * INEXPENSIVE   - $34.95   including   shipping and handling.         *
+*                                                                             *
+*                                                                             *
+*                           TCI                                               *
+*                           17733 205th Ave. NE                               *
+*                           Woodinville, WA  98072                            *
+*                                                                             *
+*******************************************************************************
+
+                 EDITING_COMMANDS_QUICK_REFERENCE
+
+    CURSOR_MOVEMENT
+
+    Cursor Left.........^H (______)     Next Tab............^I (______)
+    Cursor Right........^L (______)     Previous Tab......  ^I (______)
+    Cursor Up...........^K (______)
+    Cursor Down.........^J (______)     Next Word...........^W (______)
+                                        Previous Word.......^A (______)
+    Indent............^U^W (______)
+    Undent............^U^A (______)
+
+    Start of Line.....^U^H (______)     End of Line.......^U^L (______)
+    Top of Screen.....^U^K (______)     Bottom of Line....^U^J (______)
+    Top of Buffer.....^U^R (______)     Bottom of Buffer..^U^T (______)
+
+    Start of Line/Screen/Buffer.....^^ <HOME> (______)
+    End of Line/Screen/Buffer.......^N        (______)
+    Carriage Return.................^M <CR>   (______)
+
+    SCROLLING
+
+    Scroll Down One Line..^F (______)  Down Continuously..^U^F (______)
+    Scroll Up One Line....^G (______)  Up Continuously....^U^G (______)
+
+    Next Page.............^T (______)  Center Cursor Line...^] (______)
+    Previous Page.........^R (______)
+
+    EDITING_COMMANDS
+
+    Rubout.............<RUB> (______)  Delete Word..........^V (______)
+    Delete Character......^D (______)  UNdelete Word......^U^V (______)
+
+    Insert Single Space...^E (______)  Delete End of Line...^Y (______)
+    Partial Insert Mode...^Q (______)  UNdel End of Line..^U^Y (______)
+    Toggle Full Insert..^U^Q (______)
+
+    Insert Line...........^X (______)  Delete Line..........^Z (______)
+    Toggle Entry Mode.....^\ (______)  UNdelete Line......^U^Z (______)
+
+    Break Line............^B (______)
+    Concatenate Lines.....^O (______)  Reformat Paragraph.^U^O (______)
+
+    SPECIAL_COMMANDS
+
+    Enter/Leave Command Mode..^[ <ESC> (______)
+
+    Cont. Search/Replace..^S (______)  Literal Next Char....^C (______)
+                                       'Bit7' Next Char...^U^C (______)
+
+    BLOCK_COMMANDS
+
+    Set Block Marker....^P^P (______)  Block Copy.........^P^C (______)
+    Clear Block Marker..^P^B (______)  Block Move.........^P^M (______)
+    Clear all Markers...^P^K (______)  Block Delete.......^P^D (______)
+
+    REPLACE_MODE_COMMANDS
+
+    Continue, No Replace..^S (______)  Replace and Stay...<LF> (______)
+    Replace and Cont....<CR> (______)  Center on Screen.....^] (______)
+
+    Begin Editing.............(Any other Key)
+Hardware Requirements
+
+EXPRESS requires a Z-80 microprocessor with a minimum of 48K bytes of
+memory and the CP/M 2.2 operating system. The video display terminal
+should have at least 64 columns (characters per line) and direct cursor
+addressing.
+
+   Overview
+
+EXPRESS will edit any ASCII file created under the standard CP/M text
+storage format used by ED and most other editors; i.e., every line is
+followed by a carriage return/linefeed and the end of the file is marked
+with a ^Z. EXPRESS performs simple formatting automatically during
+editing by providing the user with dynamic word wrap and unwrap. When
+a more sophisticated output is desired, (such as footnotes, page
+numbering, right justification, etc.), the output file can be sent to a
+text formatter such as ROFF4, a very complete public domain program
+available on SIG/M volume 174.
+
+EXPRESS was written to be fast, powerful, and flexible. The editing
+commands can be configured to look exactly like any other editor with
+which you are familiar. This lets you switch over from another system
+painlessly while gaining the advantages of EXPRESS (such as fast
+operation, full use of CP/M user areas, etc.).
+
+EXPRESS has two distinct modes of operation - "COMMAND" mode and "EDIT"
+mode. Edit mode is used for entering and editing text. Command mode
+performs more complex operations that involve blocks of text or the
+whole file. When in Edit mode, the screen is filled with text (or blank
+if creating a new file). When in Command mode, a special menu is
+displayed and the cursor is placed on a command input line.
+
+Required Files
+
+The only files needed to use EXPRESS are E.COM and EXPRESS.OVL.
+EXPRESS.OVL contains overlays for some of the extended commands
+available from command mode. Both files together take about 24k bytes of
+disk space.
+
+Naming the command file E.COM is more evidence of our commitment to fast
+operation. We found that no matter what name we gave our editor (and the
+name was changed many times since its inception), we always renamed the
+command file to "E.COM" anyway. Although "E" isn't as descriptive as
+some multi-character name, it is much faster to type. When you are as
+impatient as we are, any unnecessary keystroke gets in your way.
+
+E.COM will find EXPRESS.OVL if it is in any user area on CP/M's current
+"default drive" (as indicated by the CP/M ?> prompt) or in any user area
+on drive A. This means you need only one copy of EXPRESS.OVL on the
+system. You can actually edit files without having EXPRESS.OVL on any
+disk at all. If EXPRESS cannot find EXPRESS.OVL anywhere, you will lose
+only the use of Block Commands, Macro Key Commands, and System Commands,
+but no other functions will be affected.
+
+Getting Started
+
+Run ECONFIG on the working disk and select the <T>erminal Installation
+command to install EXPRESS for your system. If you don't want to install
+different command keys than those we have provided or set up different
+default parameters, you can skip the next two paragraphs and get right
+down to brass tacks. Otherwise...
+
+While running ECONFIG, if you are extremely familiar with the control
+characters for some other full screen editor and would like to stick
+with them instead of using ours, they can be changed using the <C>ommand
+Installation command in ECONFIG.
+
+Since EXPRESS uses so little disk space, you may want to keep a copy on
+each of your working disks. These can each be set up with different
+tabs, margins, and other default parameters that are appropriate for the
+files on that disk (ie. FORTRAN, PASCAL, ASSEMBLER, text files). The
+default parameters are set up using the <D>efault Parameter Selection
+command in ECONFIG.
+
+You are now ready to take advantage of the speed and power of EXPRESS.
+
+To edit an existing file with EXPRESS, type the following command at the
+operating system prompt:
+
+A>e d:fid.ext
+
+where 'fid.ext' is the name of the file you wish to edit and 'd:' is the
+drive where the file is located. EXPRESS will load the requested file
+into memory and place you in Command Mode (or Edit Mode if you told it
+to do so with ECONFIG).
+
+To create a new file, the command is the same. When EXPRESS discovers
+that the file does not exist, it will ask the question:
+
+Create New File D:FID.EXT? (Y/N)
+
+Responding 'N' will allow you to correct the file name if in error,
+responding 'Y' will create the file and allow you to enter and edit
+text.
+
+If you type 'e' with no filename following, you will be prompted for a
+'File to Edit'. While entering and editing at this prompt, all of the
+normal EXPRESS editing commands are available, such as cursor movement,
+character insertion and deletion, etc.
+
+Memory Overflow Handling
+
+When you are close to overflowing the edit buffer, EXPRESS will
+automatically write out one page (screen) of the buffer to the disk.
+This will take a second or so and after it is done, you may continue
+editing. If you were editing in the first page of the buffer at the time
+the overflow occurred, you will have to go to command mode and execute
+the HEAD command to get back to where you were; otherwise, you will be
+left exactly where you were before the overflow.
+
+If you find that you are overflowing memory often, you will probably
+want to raise the amount of free memory left after a disk read. This can
+be done with the <D>efault parameters option of the ECONFIG program that
+comes on the distribution disk.
+
+Disk Full Error Handling
+
+If at any time during a disk operation, the disk becomes full, the
+operation will be stopped and the message 'The Disk is Full!' will be
+printed on the error line. You cannot write any more to disk until you
+remedy the problem.
+
+You have several options at this point, the most undesirable one being
+to QUIT out of the edit. If you really would like to save what you have
+just entered (most likely you would) you can use the DIR command to
+check the disk you are working on to see if any files can be deleted.
+Good candidates for this are files with a .BAK extension. If there are
+any files that are not needed, erase them with the ERASE command. Now,
+re-execute the command that caused the disk full error.
+
+If there aren't any files on the disk that can be deleted, don't get
+excited yet. There's still another option. COPY files that you need to
+save to another disk and ERASE them from the original. This will free up
+disk space that can be used to save the file you are editing. Make sure
+you don't change the disks that are already in the drives. If you do,
+you may find yourself with an ugly error message from the operating
+system.
+
+If you are anything short of totally careless, you should always be able
+to come away from a disk full error with a smile on your face.
+COMMAND_MODE
+
+Command Mode is used for tasks too involved and complicated to be
+handled while in Edit Mode. For instance, if a command needs a file
+name, it would be most inconvenient to have to type the file name
+without being able to go back and edit it as you typed.
+
+Command Mode is entered from edit mode by pressing the <ESC> key (^[),
+(______). When you do this, the screen will be cleared and a header
+of information will be displayed at the top of the screen, like
+this:
+
+The Command Line Prompt
+
+EXPRESS 1.0 Full Screen Editor  Purchaser:
+(c) copyright TCI 1984, 1985     Terminal: Snipe-13
+A0:Editing B7:JUNK.TXT
+>
+
+The letter and number at the beginning of the third line is the current
+'default' drive and user area. This is the drive and user area that will
+be assumed whenever you type a filename for a command and don't enter a
+drive name or user area. The file displayed after 'Editing' is the file
+that is currently being edited. If the file is larger than the available
+memory (RAM) in your system and the entire file has not yet passed
+through the memory buffer, the message 'More of File Still on Disk' will
+be displayed following the file name.
+
+The fourth line is the command input line. It contains the prompt '>'
+and the cursor is placed immediately after the prompt. This is where all
+commands will be input. All of the single line editing commands can be
+used when inputting the command line, including cursor movement,
+character insertion and deletion, etc.
+
+The line immediately below the prompt line is the 'auxiliary input' line
+(for short yes/no questions) and the line below that is the 'error
+line'. Any time there is a mistake made in command input (for instance,
+if a file doesn't exist) the message telling you so will be printed on
+this line.
+
+While in command mode you have access to a variety of useful
+functions including: ENDing the editing session, setting the TABS,
+SEARCHing for a string of characters, TYPING, RENAMING, COPYing, and
+ERAsing files, and many others.
+
+NOTE: (Not all commands are available in EXPRESS version 1.0.)
+      (Unavailable commands are denoted with a # on the command page)
+
+COMMANDS
+
+The following is a list of commands executable from the command mode of
+EXPRESS. These commands are executed by typing the command and any
+arguments that are needed followed by a carriage return, <CR>, which
+begins execution of the given command.
+
+The entire word for a command may be entered if you wish to make it
+easy to remember, but you are only required to enter the letters
+that are shown in upper case in the discussion below. The actual
+command which you type in may be in either upper or lower case.
+
+Syntax Conventions
+
+The following descriptions will use these rules of grammer:
+
+[ ] - anything enclosed in brackets is an optional part of the command
+      and may be omitted (do not enter the brackets themselves as part
+      of the command line).
+
+| -   when there is a choice between two or more arguments, they will be
+      separated by a vertical bar.
+
+n -   any positive number less than 32767 (for most commands the highest
+      number that will be recognized is much smaller than this)
+
+ccc - any string of characters
+
+du:fid.ext - this is any file, on any disk, in any user area of your
+             system where:
+
+	     du      - specifies disc and user area
+	     fid.ext - specified filename and extension
+
+EXPRESS 2.0 recognizes 32 user areas numbered 0-31
+EXPRESS 1.0 recognizes only 16 user areas.
+
+
+Command Groups
+
+The Command Mode commands are logically separated into 6 major groups:
+
+SEARCH -  find a specific string, line, or page in the file replace
+          occurrences of one string with another string
+
+EDITING - set parameters that directly affect how text is entered (tabs,
+          margins, word wrap)
+
+BLOCK   - perform operations on large "blocks" of text (move, copy,
+          delete, include from or save to a file)
+
+MACRO KEY - define macro keys and maintain files of macro key definitions
+
+BUFFER  - change the contents of the edit buffer, end the edit session,
+          switch to a new work file.
+
+SYSTEM  - provide CP/M-like commands without having to exit to CP/M.
+
+For convenience, the commands are separated into these categories on the
+Command Mode menu and in this manual.
+
+SEARCH COMMANDS
+
+The search and replace strings may be composed of anything that can be
+typed in Edit Mode, including control characters and block marker
+characters. They are entered the same way you would enter them in Edit
+Mode (precede the control character with ^C, (______) and use the 'Set
+Block Marker' command ^P^P , (______) to search for a block marker).
+
+The search string begins immediately after the delimiter character
+following the 'SEARCH' command on the command line and ends at the next
+occurrence of the delimiter. So, if you want to search for the string
+'this is it' you could type
+
+    se/this is it/
+    s'this is it'
+    sea?this is it?
+
+or any other similar entry. The only limitation is that the delimiter
+character cannot be an alphabetic character('a'-'z' or 'A'-'Z').
+
+The rules are the same for the replace string, except that the beginning
+of the replace string is the first character after the second delimiter
+on the line.
+
+      rep/this/that/
+             ^ the replace string begins here
+
+Search/ccc/
+
+This command finds the first occurrence of the string 'ccc' following the
+current cursor location in the edit buffer. The string to be searched
+for can be any length from 1 to 40 characters If the string is found, you
+are placed in edit mode with the cursor on the top line of the screen,
+directly over the first character of the matching string.
+
+If no occurrences of the string are found, you are told so and remain in
+command mode. If this happens, the entire command line that you entered
+is left on the command line. All the standard editing commands can be used
+on the command input line to change the search string and try again without
+having to retype the entire command.
+
+Once the first occurrence of a string is found and you are in edit mode,
+you may use the 'continue search' key, ^S (______) to find all other
+occurrences of the string.
+
+Replace/this/that/[N]
+
+This command attempts to find the string between the first two
+delimiters and, if the string is found, replaces it with the string
+between the second and third delimiters.
+
+If you follow the command with 'N' (No-verify) all occurrences of the
+search string after the current cursor location in the buffer will be
+immediately replaced with the replace string.
+
+If you do not follow the command with 'N' you will be able to
+selectively replace some of the occurrences of the string and bypass
+others.
+
+In selective replace mode, if the specified string is found anywhere
+following the current cursor location in the edit buffer, the cursor is
+moved to the first character of the string, just as when you are
+searching. At this time you are in edit mode and may begin editing
+normally, except that 4 keys temporarily have different actions:
+
+1.  Type ^] (______) to place the line the string was found on
+    in the middle of the screen.
+
+2.  Type ^S (______) to find the next occurrence of the string
+    without replacing this one.
+
+3.  Type <CR> (^M) to replace this occurrence of the string
+    and immediately find the next occurrence.
+
+4.  Type a cursor down or linefeed (^J) (______) to replace
+    this occurrence and remain here to do more editing.
+
+After any key (except ^], (______) ) has been typed, these four keys
+regain their original meaning and you are completely in Edit Mode.
+
+If you begin editing here or choose option 4, you may still continue the
+selective replace operation at any time by pressing ^S (______). This
+allows you to do things such as replacing a string and putting a comment
+about the replacement at the end of the line before going on to replace
+the next occurrence. Once you return to command mode (by typing <ESC>,
+(______) ), replace mode is turned off and you will have to execute the
+command again to replace any more occurrences. The first time you return
+to command mode after starting a 'selective' replace, a message will be
+printed below the command line telling how many occurrences of the string
+were replaced.
+
+LITeral [On|OFf|True|False] (Literal mode only on EXPRESS 1.0)
+
+This command is used for switching between two modes of searching. If
+literal mode is on, you will only find occurrences of exactly what you
+typed, (e.g 'se/ONE/' will find 'ONE', but it will not find 'One' or
+'one'); if literal mode is off then the same command will find all three
+strings, assuming that they occur. Basically, if literal mode is off,
+SEARCH and REPLACE does not distinguish between upper and lower case
+letters; if literal mode is on then they do distinguish between upper
+and lower case.
+
+It should also be pointed out that, when in non-literal mode, a single
+space (or tab) in a search string can be matched by any number of spaces
+(or tabs, or a combination of tabs and spaces). This means that if you
+search for 'I am', you will also find 'I  am' and 'I<tab>am', etc.
+
+
+Line n
+
+Looks for line number n in the buffer and, if it is there, the edit mode
+cursor is positioned to the first column of the desired line. You will
+remain in command mode, but next time you go to edit mode ( by typing
+<ESC>, (______) ), the cursor will be positioned at the new location.
+
+If the specified line is not currently in the buffer, the message 'Not
+in Buffer' is displayed and the edit mode cursor remains in its original
+position. If this happens, the line may either be in an as yet unread
+portion of the file, or you may have typed in a line number such as '-1'
+or '0' (Lines are numbered 1-n).
+
+If no line is specified, the LINE command simply displays the current
+line number, along with the tab stops, etc.
+
+
+Page n
+
+Looks for the nth screenful of lines in the buffer and, if there are
+that many 'pages' in the buffer, the edit mode cursor is placed at the
+beginning of the desired page. The next time you enter edit mode, you
+will be positioned at the new location.
+
+This command is similar to the LINE command except that it only counts
+the lines currently in the buffer; it does not keep track of absolute
+position in the entire file. It is useful for moving quickly to the
+approximate location in the file that you wish to be.
+
+If the specified page is not in the buffer, the message 'Not in Buffer'
+is printed and the edit mode cursor remains in its original position.
+
+(For reference - page 1 is the beginning of the buffer (BOB), page two
+starts at BOB + (number of lines in display), etc.)
+
+
+EDITING COMMANDS
+
+Editing commands are used to set certain parameters that affect the way
+text is entered and displayed. Commands are included for setting tab
+stops, left and right margins, and word wrap mode.
+
+All values of n in these commands should be in the range 1-(no. of
+columns on the screen).
+
+Wrap [n]|[On|OFf|True|False] (Dynamic Wrap available only on EXPRESS 2.0)
+
+The Wrap command switches between the two modes of entering and editing
+text. When wrap mode is on, the editor will perform automatic word wrap
+(without right justification). If any word is overflowing the current
+right margin, it will be moved to the beginning of the following line.
+When Wrap mode is off, all lines are left as they are and no attention
+is paid to the right margin.
+
+When in wrap mode, everything will be wrapped down to the end of the
+current paragraph. If a new line is needed at the end of the
+paragraph, one will be inserted. Conversely, if words are 'unwrapped'
+following a deletion and a line at the end of the paragraph is no longer
+needed, it will be deleted. This is all done in real time while you
+type. If you use the same margin settings for EXPRESS that you will
+be using for your text formatter program, the lines on the screen
+will always contain the same words that they will contain when the
+file is printed out by the text formatter. They will not however be
+right justified on the screen.
+
+For the purposes of word wrapping, a new paragraph is signaled by
+one of three circumstances; (1) a blank line, (2) a line with a
+space in the column that the INDENT is set to, or (3) a line that
+begins with the user specified formatter command character, (.)
+(______). This character can be set in the <D>efault settings
+section of CONFIG.
+
+Indent [n]
+
+Sets the left margin, or amount of indent, to the specified value. This
+margin is respected in wrap mode and in standard mode. The amount of
+indent may be changed from within the edit mode by using the indent,
+^U^W (______), and undent, ^U^A (______), commands. Refer to the
+Edit Mode section for more information on these.
+
+If no value for n is given then the number 1 (the extreme left of the
+screen, i.e. no indent) is assumed.
+
+Tabs [i]|[n1,n2,n3,...][,i]|[ON|OFf] (Fixed tab stops only with EXPRESS 1.0)
+
+This command sets the tab stops and allows turning the tabs 'on' (actual
+tab characters are inserted) and 'off' (tabs are expanded as spaces).
+Tabs are used for columnarizing data and indenting sections of a
+computer program, among other things.
+
+Tabs are actually special characters stored in the file that cause
+the remainder of the current line to be moved out to the column of
+the next tab stop. You will notice that if you move the cursor over
+a tab character it will 'jump' from one end of the tab to the other;
+this indicates to you that it is really a single character and not
+merely a group of spaces.
+
+You can set the tabs at a certain interval by giving a single number on
+the command line:
+
+    TABS 8
+    t8
+
+sets tabs at 9,17,25,33,41,49,57,65,73... up to the width of the screen
+or twenty stops, whichever is less.
+
+It is also possible to set the tabs at individual locations such as:
+
+ta 6,12,20,22,28,46,51,70
+
+which set tabs at exactly the locations specified and no others.
+You can combine these two methods if you like, simply by making the last
+number you enter smaller than the one preceding it:
+
+T 4 9 22 5
+
+This sets tabs at columns 4, 9, and 22, and every 5 columns afterward.
+
+Using tab characters instead of spaces will give you a much more
+compact file; saving you space in memory and on your disk.
+Unfortunately, certain programs (such as TURBO PASCAL) will not
+handle tabs. If you want tabs to be expanded with spaces instead of
+inserting actual tab characters, you can use the command:
+
+TABS OFF
+
+The tab key will still move the cursor to the same positions on the
+line, it will just insert a proper number of spaces instead of a single
+tab character.
+
+When tabs are ON and you change the TABS setting, you will change the
+way that previously entered tab characters are displayed on the screen.
+This allows you to look at the same information in several formats
+without retyping it. The tabs are also expanded to these columns when
+sending text to the printer with the BPRINT command. This allows you to
+do things such as narrowing up the tabs before printing to allow wide
+lines to fit on narrow paper, etc.
+
+If no numbers are given after the TABS command the current tab table is
+printed on the screen along with the INDENT value and the state of wrap
+and literal mode, etc.
+
+BLOCK_COMMANDS
+
+These commands all deal with a 'block' of text defined by placing 'block
+markers' at either end of the desired text with the 'set block marker'
+control command ^P^P (______), in the edit mode. Only one block may be
+specified at any time; if there are more (or less) than two block
+markers, an error message will be printed whenever a block operation is
+attempted. Many of the Block commands can be executed directly from edit
+mode. See the Block Commands description in the Edit Mode section of the
+manual.
+
+A block of text can be anywhere from a single line to the entire
+contents of the edit buffer; it can be composed only of complete lines;
+if you want part of a line in a block, you can break it from the rest of
+the line with ^B (______) and then put markers around it.
+
+( EXPRESS 1.0 block size is limited to 1024 bytes )
+
+Marking Blocks
+
+To mark a block of text, the first block marker must be on the first
+line that you wish to be in the block, and the end marker must be on the
+last line to be included in the block. If the entire block is one line,
+then put two block markers on it. Block markers are automatically placed
+at the beginning of the line regardless of where you are when you type
+the ^P^P (______) command, so you will never have to worry about doing
+this yourself.
+
+Finding Block Markers
+
+To find the beginning of a block, use the search command to search for
+the block marker with:
+
+search ^P^P  (actually type ctrl+P, ctrl+P)
+
+BMove
+
+Finds the currently active block of text and moves it from its present
+location  to the area immediately preceding the cursor line in the edit
+buffer.
+
+BCopy
+
+Finds the currently active block of text and places a copy of it
+immediately preceding the current cursor line.
+
+BDelete
+
+Deletes the current block from the edit buffer. After this command is
+issued you will be told how large the block is and asked if you really
+want to delete the block. Typing a 'Y' or 'y' will allow the operation
+to continue, any other character causes the command to be ignored.
+
+BKill
+
+Clears (kills) ALL block markers from the edit buffer. This operation is
+automatically executed whenever a SAVE, HEAD, or END command is given.
+It is also executed after a BMOVE or BDELETE.
+
+BPrint
+
+Sends the current block of text to the CP/M list device, LST:, (usually
+the printer). Tabs are expanded according to the user's current tab
+settings. Printing can be cancelled at any time by typing an <ESC>,
+(______).
+
+If your ListStatus does not work properly (or if you are not even sure what
+ListStatus is), then the BIOS of your version of CP/M is not implementing
+the LSTST: routine properly so you will have to make sure the printer is
+ready yourself.
+
+BSave du:fid.ext
+
+Saves the current block of text to disk in the file du:fid.ext. Notice that
+you can save the block to any user area (0-31) of any disk on your system.
+
+The block of text is NOT deleted from the edit buffer and the block markers
+remain around the text.
+
+If the named file already exists, an error message will be printed and
+the operation will not be allowed to occur. If you really want to write
+over the file you can ERASE it first and then do the BSAVE.
+
+INClude du:fid.ext
+
+Places a copy of the named file in the edit buffer preceding the current
+cursor line. When you return to edit mode after this command, the cursor
+will be on the first line of the included file. Again, the included file can
+be from any user area on any disk.
+
+Wildcarded file names are not allowed for this command.
+
+
+MACRO KEY COMMANDS    (limited number of definitions on EXPRESS 1.0)
+
+The Macro Key Commands allow you to redefine any sequence of typed keys
+to output a sequence of characters or commands, and to save these key
+redefinitions in a disk file for later recall. Macro keys can
+dramatically increase productivity and decrease boredom and frustration
+(and besides that, they're just plain fun.)
+
+After a macro key has been defined, typing that key (or sequence of
+keys) will have the same results as typing the characters or commands
+to which the key was redefined. For instance, if the <LF> (^J) key
+has been redefined to type 'this is the linefeed key', then typing
+<LF> will cause 'this is the linefeed key' to be entered on the
+screen (and in the file) just as if you had typed the entire string
+yourself. This can be handy in many obvious ways (like defining
+macro keys for common words like 'write', 'read', 'begin', etc.) and
+in many not-so-obvious ways. Any repetative series of keystrokes is a good
+candidate for a macro key.
+
+When you are done using a macro key, you can 'undefine' the key (by
+redefining it to a blank string) and it will regain its original meaning.
+
+You can also enter the original value of a key into the file without
+'undefining` it by using the 'Literal Next Character' command ^C (______)
+followed by the key; you can redefine normal printable characters
+without losing the ability to enter them into the text.
+
+A macro key can be any character, or sequence of characters, that you
+can type on the keyboard; each macro 'key' can be up to 10 keystrokes
+long. For instance, the following could be redefined as macro keys:
+
+^U^B          (control+U followed by control+B)
+t             (the letter 't')
+T             (the letter 'T', separate from the letter 't')
+<ESC>BGG      (the <ESC> key followed by 'BGG'
+
+The redefinition of a macro key can be any mixture of characters and
+commands entered just as you would type them at the keyboard; each macro
+'redefinition' can be up to 256 keystrokes in length. Macro
+redefinitions can be used to execute any command you can execute from
+the keyboard. For instance, a macro key to go to Command Mode and save
+the current text block to the file 'TEMP.$$$', then return to Edit Mode
+is defined as:
+
+<ESC>bs temp.$$$<CR><ESC>
+
+assuming that you are using the command keys originally installed in
+EXPRESS. Notice that when the macro redefinition is typed in, you
+actually type the <ESC> key, not the sequence of characters '<ESC>'.
+Another example is the following command that will move to the beginning
+of the last word on the current line and place you in partial insert
+mode:
+
+^U^L^A^Q    (end of line, prev word, partial insert on)
+
+again, this is assuming you have not reinstalled the command keys with
+CONFIG; if you have, just use the commands you have defined as 'end of
+line', 'prev word', and 'partial insert on' when entering the
+redefinition string.
+
+MDefine
+
+After you enter the MDefine command, EXPRESS prompts for 'input keys'
+(the key sequence you will type to execute the macro). Type the exact
+key sequence you want to use followed by a <CR>. Then EXPRESS asks for
+the 'redefinition'; type the characters and editing commands that you
+want to be executed when you type the 'input keys' followed by <CR>. If
+you make a mistake while defining either the input keys or the
+redefinition string, use the <RUB> (DEL) key to correct the line (all
+other editing keys are disabled so they can be part of macro
+definitions).
+
+To 'UnDefine' a macro command, enter the input keys that you wish to be
+undefined, then enter a blank line for the redefinition. You can 'redefine'
+an existing key without worrying about undefining it first.
+
+If you want to use <CR> and <RUB> in macro definitions, you can either avoid
+the problem by using 'NextLine, Start of Line' for <CR> and 'Backspace,
+Delete Character' for <RUB> or you can follow the MD on the command line
+with the keys you wish to use for <RUB> and <CR>. For instance, the command:
+
+MD:-
+
+lets you define a new macro key using ':' as the <RUB> key and '-' as
+the <CR> key.
+
+MClear
+MClear is a quick way to clear out the entire macro table. All previously
+defined macro keys will be 'forgotten'.
+
+MSave du:fid.ext
+
+Saves all current macro definitions to the named file. The definitions
+are not cleared from the macro table.
+
+MRestore du:fid.ext
+
+Loads the named macro key file into the macro table. A check is made to see
+if the file actually does contain macro definitions.
+
+The new macro definitions are added to the current definitions (the current
+ones are not deleted). You can concatenate two (or several) macro files by
+MRestoring them all and then MSaving them all at once.
+
+BUFFER_COMMANDS
+
+Buffer commands operate directly on the file that is being edited and on
+the contents of the edit buffer.
+
+Managing`Files`Larger`Than`Memory (EXPRESS 2.0 ONLY)
+
+PRead [n]
+
+Writes n screens full (if n is not specified then it writes one screen
+full) of the current edit buffer to the disk and reads as many more as
+will fit in the buffer, if any of the file is left on the disk.
+
+BRead
+
+If there is still a portion of the file remaining on the disk, this
+command writes the current edit buffer contents to disk and reads in
+more until the buffer is full or the end of the file is reached.
+
+End
+
+This command saves the updated file on the disk and returns to the
+operating system. If the file is larger than memory and has not all
+been read yet, the remainder of the original file will be
+automatically read and then written to the new file. After all the
+file is successfully written to the disk, the old d:fid.BAK file
+will be deleted and the original file renamed to d:fid.BAK. Then,
+the new file (named d:fid.$$$ during editing) will be renamed to
+d:fid.ext.
+
+Quit
+
+Use this command to terminate the editing session without saving the
+changes that have just been made to the file.
+
+SAve
+
+Use this command if you have a system prone to memory errors or power
+failures, or if you just happen to have common sense. It saves all
+changes that have been made to the file and then places you back EXACTLY
+where you were in the file at the time you issued the save command.
+
+Head
+
+This is the same as the SAve command except that it places you at the
+beginning of the file instead of where you were when the command was
+given. It is functionally the same as Ending and then calling up EXPRESS
+again to edit the same file, it is just faster.
+
+
+SYSTEM_COMMANDS
+
+The System commands operate on ANY file in ANY user area on ANY disk
+currently on the computer system. They provide you with most of the
+commands of the CP/M Console Command Processor and PIP without requiring
+you to end the edit and exit to the operating system.
+
+Remember that anywhere a filename is requested, you can optionally
+specify a disk and user area different from the current defaults
+(displayed on the command screen immediately preceding 'Editing').
+
+Dir [du:fid.ext]      (Directory sorted on EXPRESS 2.0 only)
+
+Displays a listing with filesizes (in kilobytes) of the directory of the
+given disk or files matching the filename given. '?' (single character)
+and '*' (multiple letters) wildcards are allowed in the file name.
+
+TYpe du:fid.ext
+
+This command is used to display a file on the screen, similar to CP/M's
+TYPE command (with a few enhancements).
+
+The speed at which the file scrolls past the screen may be controlled
+with the number keys in the same fashion as auto-scroll, with the
+exception of the '-' key (you cannot scroll backwards with the TYPE
+command). See the Continuous Scroll commands in the Edit Mode section
+for more details.
+
+Typing any character other than a number suspends output until another
+character is typed; typing <ESC> (______) stops the display and
+immediately returns you to Command Mode.
+
+When the entire file has been displayed, the message:
+
+[EOF] Type <ESC> to Continue
+
+is displayed at the bottom of the screen. At this time you must type
+<ESC> (______) to return to the command screen.
+
+
+ERase du:fid.ext      (Available on EXPRESS 2.0 only)
+
+Functionally the same as the CP/M ERA command. This command erases the
+named file if it exists, or prints an error message if it doesn't.
+
+The '?' (single character) wildcard character and the '*' (multiple
+character) wildcard are both allowed when specifying the file to ERASE.
+
+As a rule, any selected group of files that would include the file being
+edited (source.ext) or the temporary file used by EXPRESS during the
+editing session (source.$$$) cannot be operated on by this command (to
+avoid lawsuits and suicides).
+
+
+
+REName du:fid.ext > du:fid.ext   (available on EXPRESS 2.0 only)
+
+This is identical to CP/M's REN command except that it recognizes the
+'>' character (ala UNIX) as well as the '=' (like PIP). You may also use
+the '<' redirection symbol (more UNIX) or simply a space (MSDOS, VMS).
+This way, no matter what operating system you are used to, the command
+will execute and you won't get frustrated trying to remember 25
+different types of command lines. So there is no confusion, the
+following command lines all have the same effect, they RENAME a file
+called 'OLDNAME' to 'NEWNAME':
+
+ren newname=oldname
+ren newname < oldname
+ren oldname > newname
+ren oldname newname
+
+Note that blanks between filenames and the 'director' characters are
+ignored (except in the case where the 'director' IS a blank).
+
+If the file to be RENAMED is in a different drive/user than the current
+default, you only need to include it in the first filename on the line.
+For example, all of the following commands rename 'B21:OLD' to
+'B21:NEW':
+
+rename b21:new=old
+rename b21:new <old
+rename b21:old >b21:new
+rename b21:old new
+
+Remember: when in doubt, just type the same command you would use in
+CP/M (or MSDOS, or whatever you are used to).
+
+Wildcarded file names are NOT allowed for this command and it is not
+allowed to operate on the file which you are currently editing.
+
+
+Copy du:fid.ext > du:fid.ext   (available on EXPRESS 2.0 only)
+
+This command copies the contents of a file into a new file. Both files
+can be on any drive in any user area. The same flexible command
+interpretation used for the rename command is used for COPY. To
+illustrate:
+
+copy exist > new
+copy new = exist
+copy exist new
+copy new < exist
+
+all copy the contents of the file 'EXIST' into the new file called
+'NEW'. The '>' form of the command becomes very understandable when
+the '>' is thought of as the word 'to'; this way the command would read
+as 'COPY exist TO new'.
+
+Wildcarded file names are NOT allowed for this command.
+
+If you wish to copy over an existing file, you must ERASE the existing file
+first.
+
+LOg du:
+
+This command allows you to change the current 'default' drive and user
+area (displayed on the third line of the Command Screen, preceding
+'Editing'). This is handy if you entered the editor in one area and then
+decided to work on something in another area. While you could just type
+the new drive and user area preceding all the file names you enter, it
+is much more convenient to LOG into the new area and just type the file
+names from then on, letting EXPRESS figure out the drive and user for
+you.
+
+After this command is entered, the new 'default' will be displayed at
+the beginning of the third line on the screen:
+
+B2:Editing B3:THIS.FIL
+^-- new default drive/user area
+
+This new default is in effect until you return to CP/M.
+
+You MUST type the colon ":" at the end of the drive/user area or you
+will receive an error message. Remember that you can specify a drive
+without a user area, but you cannot give a user area without a drive.
+EDIT_MODE
+
+EXPRESS's "Edit Mode" is used for entering and modifying text. Edit Mode
+is sometimes referred to as "Visual Mode" on some other editors. When in
+Edit Mode, any characters you type are entered into the file. "Control
+keys" execute editing commands when in Edit Mode.
+
+Any time a specific control character is mentioned, it will be preceded
+by a '^'; thus, ^N means 'control+N'. You should remember that the
+<CONTROL> key is similar to the <SHIFT> key; you must hold it down WHILE
+YOU TYPE THE OTHER KEY.
+
+For people who have chosen to customize their control character layout
+to achieve compatibility with other editors, implement special function
+keys on their terminal, or whatever other reason, a space - (______) - has
+been provided wherever a specific control character is mentioned. This
+will allow you to write in the control character or function key you
+have selected for this operation.
+
+CURSOR_MOVEMENT
+
+Cursor Left      ^H (Backspace) (______)
+
+Moves the cursor one position to the left non-destructively.
+
+Cursor Right     ^L (______)
+
+Moves the cursor one position to the right non-destructively.
+
+Next Tab         ^I (Tab) (______)
+
+Moves the cursor to the next tab stop on the line.
+
+If the cursor is already past the last tab stop on the line, the line is
+extended into the next line on the screen and the cursor is moved to the
+beginning of this 'continuation line'.
+
+If insert mode is on or if the cursor is moving past the last character
+on a line, a tab will be inserted at the cursor position, otherwise the
+command just positions the cursor.
+
+If you wish, you can cause the <TAB> key to insert the appropriate
+number of spaces instead of a tab character. This is useful when the
+file will later be used by a program that does not understand tab
+characters (Turbo Pascal, for instance). To 'turn off the tabs', return
+to command mode with <ESC>, (______) and enter the command:
+
+tabs off
+
+After this time, no more tab characters will be entered into the file
+(although all existing tab characters will remain).
+
+Previous`Tab    ^U^I (^U Tab) (______)
+
+Moves the cursor to the first tab stop preceding the current
+cursor location in the line. This command is always
+non-destructive.
+
+Next Word       ^W (______)
+
+Moves the cursor to the beginning of the next word following the
+current cursor location. The beginning of a word is signaled by
+either the start of a new line or an non-alphanumeric character
+('a'-'z','A'-'Z','0'-'9') preceding an alphanumeric character.
+
+Previous Word    ^A (______)
+
+Moves the cursor to the beginning of the current word or, if it
+is already on the beginning of the current word, to the
+beginning of the first word preceding it.
+
+Indent          ^U^W (______)
+
+Moves the cursor to the next tab stop and sets that column as
+the new left margin. Note that this new margin is the next tab stop
+after the CURRENT LOCATION OF THE CURSOR, not the current left margin.
+
+
+Undent          ^U^A (______)
+
+Moves the cursor to the first tab previous to the current cursor
+location and sets that column as the new left margin.
+
+
+Start of Line   ^U^H (______)
+
+Moves the cursor to the beginning of the current line.
+
+
+End of Line     ^U^L (______)
+
+Moves the cursor to the end of the current line.
+
+
+Carriage Return ^M <CR> (______)
+
+Moves the cursor to the beginning of the next line. If you are
+currently in entry mode or if you are at the end of the edit
+buffer, a new line is inserted. This command merely positions
+the cursor; it does not actually place a ^M in the file, so you
+can simply type a carriage return from the middle of a line to
+move to the next line, you don't have to worry about going to
+the end or beginning of the line first as with some other
+editors.
+
+If you wish to break a line in two you may use the 'break line' command,
+^B (______) described later. If you really must have the carriage return
+break a line in two then you may set the 'break line on CR' flag in
+ECONFIG and the carriage return key will actually insert a carriage
+return/linefeed into the file (when entry mode is on).
+
+
+Cursor Up    ^K (______)
+
+Moves the cursor up one line.
+
+
+Cursor Down    ^J (Linefeed) (______)
+
+Moves the cursor down one line.
+
+
+Start of Screen    ^U^K (______)
+
+Moves the cursor to the first line on the screen.
+
+
+End of Screen    ^U^J (______)
+
+Moves the cursor to the bottom line of the screen.
+
+
+Start of Buffer    ^U^R (______)
+
+Moves the cursor to the first page of the edit buffer.
+
+
+End of Buffer    ^U^T (______)
+
+Moves the cursor to the last page of the edit buffer.
+
+Start of Line/Screen/Buffer     ^^ (______)
+
+Moves the cursor to the beginning of the current line when typed
+once. Typed twice, it moves to the beginning of the first line
+on the screen. Three times moves to the beginning of the first
+line of the edit buffer.
+
+
+End of Line/Screen/Buffer    ^N (______)
+
+Moves the cursor to one position past the last non-space on the
+current line when typed once. When typed twice, it moves to the
+end of the last line on the screen. If it is typed three times,
+it moves the cursor to the end of the last line in the edit
+buffer.
+
+SCROLLING
+
+Scroll Backward One Line    ^F (______)
+
+Scrolls the screen one line towards the beginning of the edit
+buffer; the cursor remains in the same position on the screen.
+
+
+Scroll Forward One Line    ^G (______)
+
+Scrolls the screen one line towards the end of the edit buffer.
+The cursor maintains the same position on the screen.
+
+
+Scroll Backward Continuously    ^U^F (______)
+
+Scrolls the screen towards the beginning of the buffer, one line
+at a time.
+
+While scrolling is in progress, several keys take on a special
+function:
+
+    1.  Typing any digit, 1-9 or 0, will change the auto-scroll
+	speed to that speed. '1' gives the slowest scroll speed and
+	'0' gives the fastest. These are arranged in ascending order
+	across the top of the computer keyboard.
+
+    2.  The minus key (-) changes the direction of the scroll. If you
+	were scrolling backward, you will begin scrolling forward, if
+	you were scrolling forward, you will begin scrolling backward.
+	This key was chosen because it is usually situated immediately
+	to the right of the '0' key on the computer keyboard and it
+	also has the meaning of negate' which is what you are doing -
+	negating the command.
+
+    3.  Any other key will stop the scrolling action and return you
+	to normal edit mode.
+
+
+Scroll Forward Continuously    ^U^G (______)
+
+This command is identical to the Scroll Backward Continuously command
+except that it scrolls the screen towards the end of the buffer, one
+line at a time.
+
+
+Center Cursor Line    ^] (______)
+
+Scrolls the line that the cursor is currently on to the middle of the
+screen. This is useful for viewing the context in the file of a word
+that has just been located using the SEARCH command.
+
+
+Next Page    ^T (______)
+
+Clears the current page from the screen and displays the next 24 lines
+(or however many lines your terminal can display) on the screen. If you
+wish to page rapidly through a file to find a certain section, you may
+press the 'next page' key several times; you do not have to wait for the
+screen to finish painting. As soon as you type any key, painting of the
+screen is temporarily suspended and the new command is executed.
+
+
+Previous Page    ^R (______)
+
+Clears the current page from the screen and displays the previous 24
+lines (or however many your terminal can display) on the screen. The
+same comments about the painting of the screen given in the Next Page
+command hold for this command (and all other commands, for that matter),
+too.
+
+
+EDITING
+
+Rubout      <RUB> <DEL> (______)
+
+The cursor is moved left one position and the character in this position
+is replaced with a space (' '). If you are at the beginning of the line
+it remains there and replaces that character with a space.
+
+Rubout works slightly different during insert mode. The cursor is moved
+back one space and the character is deleted, but then the rest of the
+line is adjusted one position to the left to close up the space left by
+the deletion. If you are at the beginning of the line in insert mode,
+rubout will append the current line on the line above, effectively
+deleting the carriage return/linefeed at the end of that line. This
+can be changed with ECONFIG so that RUB doesn't delete the
+return/linefeed.
+
+
+Delete Character    ^D (______)
+
+Removes the character at the current cursor position and adjusts the
+remainder of the line one position to the left. The cursor remains
+in the same position on the screen.
+
+Since tab stops are stored as single characters, you may delete a tab
+with the Delete Character command.
+
+Insert Single Space    ^E (______)
+
+Opens up space for one character at the current cursor position.
+
+This is useful for minor alterations, such as misspelled words, when it
+is inconvenient to toggle insert mode, type the character, and then
+toggle insert mode again. It is also helpful when you wish to move a
+line to the right on the screen by inserting spaces at the beginning of
+the line, but do not want the cursor to move from its present position.
+
+
+Partial Insert Mode    ^Q (______)
+
+Temporarily turns on insert mode (as described in the section on
+'Toggle Insert Mode'). Each character you type after this
+command will be 'inserted' into the line instead of typing over
+what is already there. Typing any control command except
+'Rubout', <DEL> (______), 'Tab', ^I (______), 'Insert Control
+Character', ^C (______), or, of course, this command itself, will
+return you to the 'replacing mode' of text entry.
+
+
+Toggle Full Insert Mode    ^U^Q (______)
+
+This key changes the state of insert mode; if it is on, it is
+turned off and if it is off, it is turned on. This new setting
+remains in effect until the command is issued again or until the
+editing session is terminated.
+
+When insert mode is on, everything that is typed is 'inserted'
+at the current cursor location. The character at the current cursor
+position and all characters to the right of it are moved one column
+to the right. This is functionally equivalent to typing an 'Insert
+Space' command, ^E (______), before typing each character.
+
+
+Delete Word    ^V (______)
+
+Deletes from the current cursor position to the beginning of the
+next word and adjusts the line to close up the space.
+
+This command has three distinct uses which vary slightly. The first is,
+of course, to delete an entire word; the second use is to delete the
+end of a word; and the third is to delete a large group of space.
+
+
+UNdelete Word    ^U^V (______)
+
+Any time a deletion of more than a single character is
+performed, the deleted text is placed temporarily in a buffer in
+case the deletion was not wanted, or possibly if you want to put
+the deleted text somewhere else in the file. When you perform
+the UNdelete Word command, enough space is provided at the
+current cursor location for the previously deleted text and it
+is inserted there. Note that it is possible (and often
+desirable) to delete a line with ^Z (______) and then UNdelete it
+as a word or partial line with ^U^V or ^U^Y. The opposite
+operation is also possible.
+
+The delete buffer is left intact following this operation, so
+you may UNdelete the same string as many times and in as many
+places as you wish.
+
+
+Delete to End of Line    ^Y (______)
+
+Deletes, starting at the current cursor location, to the end of
+the current line on the screen. The deleted text is saved temporarily
+in the delete buffer for possible later 'UNdeletion'.
+
+
+UNdelete End of Line    ^U^Y (______)
+
+This command is functionally identical to UNdelete word. It is
+provided as a separate sequence merely for consistency and
+convenience.
+
+
+Delete Line    ^Z (______)
+
+When typed once, this command takes no action. This is to
+prevent erroneous deletion of lines. However, every time it is
+typed after the first time, it deletes one line from the screen.
+The deleted line is stored temporarily (until the next word or
+line deletion) in the delete buffer for possible 'UNdeletion' at
+a later time and place.
+
+UNdelete Line    ^U^Z (______)
+
+This command is similar to the UNdelete Word command except that
+a new line is inserted above the line the cursor is currently on
+for the deleted text to be UNdeleted into. Again, I will point
+out that it is possible to delete a word or partial line and
+UNdelete it as a line.
+
+
+Insert Line    ^X (______)
+
+Inserts a new line ABOVE the line the cursor is currently on and
+places the cursor at the beginning of this new line.
+
+
+Toggle Entry Mode    ^\ (______)
+
+This key changes the state of entry mode; if it is on, it is
+turned off and if it is off, it is turned on. The new setting
+remains in effect until the command is issued again or wrap mode is
+turned on (at which time it is turned off).
+
+When entry mode is on, a carriage return command, ^M <CR>
+(______), causes a new line to be inserted below the current one
+after which the cursor is placed at the beginning of the new
+line.
+
+Entry mode is useful when adding new sections to the middle of a
+computer program or other text. It relieves you from the burden
+of having to type so many Insert Line commands, ^X (______).
+
+
+Break Line    ^B (______)
+
+Breaks the line the cursor is on into two lines, the first from
+the start of the line to the character preceding the cursor and
+the second from the cursor position to the end of the line. The
+cursor is left at the end of the first line.
+
+
+Concatenate Lines    ^O (______)
+
+Joins the line following the line that the cursor is on with the
+cursor line. This is the opposite operation of Break Line.
+
+When in wrap mode, this command to reformats the remainder of the
+current paragraph to the currently set right margin.
+
+
+Reformat Paragraph    ^U^O (______)
+
+This command reformats from the cursor to the end of the current
+paragraph. If wrap mode is not on, it is temporarily turned on while
+reformatting, then turned back off. If wrap mode is already on, it
+remains on.
+
+
+BLOCK_COMMANDS
+
+Block commands allow you to move large 'chunks' of text around the
+file. These commands are accessible from Command mode as well as Edit
+mode. They are explained more fully in the COMMAND MODE section under
+BLOCK COMMANDS. The EXPRESS.OVL file must be present in some user area
+of the current drive or drive A to use the Block Commands.
+
+
+Insert Block Marker    ^P^P (______)
+
+Block Copy             ^P^C (______)
+
+Block Move             ^P^M (______)
+
+Block Delete           ^P^D (______)
+
+Kill Block Markers     ^P^K (______)
+
+
+
+SPECIAL_COMMANDS
+
+Some of these commands are related, but mostly, their reason for
+being placed here is that they don't fit anywhere else.
+
+
+Continue Search/Replace    ^S (______)
+
+Finds the next occurrence of the "search string". If you are in
+replace mode, the keys described in the section on selective replace
+will be in effect after you find the next occurrence.
+
+If there are no more occurrences of the search string following
+the cursor in the edit buffer, EXPRESS will beep and the cursor will
+not be moved.
+
+
+Literal Next Character    ^C (______)
+
+When this command is typed, no attempt will be made to translate
+the next character into a command. This allows the entry of
+control characters (and keys that have been redefined as macro keys)
+directly into the file.
+
+This command may be used to embed printer commands (such as
+formfeeds, font changes or any other control sequence) into a file
+which you are editing. Another use would be to clear a terminal
+screen before printing a file. One other important use is to allow
+entry of characters that have been defined as macro keys into the
+text.
+
+
+Non-displayable Characters
+
+All control characters are displayed as '^c' where 'c' is the letter
+corresponding to the control character. It is also possible to enter
+RUBouts (DEL) into the file in the same manner; they are displayed as
+'^?'. Once in the file (or the command line), the control characters
+can all be SEARCHed for, REPLACEd, and whatever else you might wish to
+do with them. They are distinguishable from the regular characters,
+such as the following: '^C', by the fact that you cannot position the
+cursor directly on the 'C' if it is a control character, but you can if
+it is just a '^' followed by a 'C'.
+
+The only exceptions to the above statements are that the characters ^Z
+and ^@ cannot be entered into the file. Entry of ^Z was disallowed on
+purpose, because ^Z is the CP/M End of File character; having it occur
+in the middle of a file would create results ranging from mildly
+annoying to catastrophic.
+
+The inability to enter ^@ originally stemmed from CP/M's Direct Console
+I/O function's inability to directly input a character with a value of
+0. This fact was taken advantage of and now ^@ is a special character
+used internally to EXPRESS (along with the characters represented by
+0FFh and 0FEh; all other characters from 01h to FDh may be entered,
+whether your terminal is able to display them or not). However, I
+have never heard of ANY computer system, terminal, or printer that
+used ^@ for anything except a delay character, so this should never
+be any hindrance.
+
+Displaying Graphics Characters
+
+The entry of characters greater than <RUB> (7FH) is also supported by
+the Literal Next Character command (and the 'Bit 7 Next Character
+Command). If you can't display characters with bit 7 set, they will be
+displayed as '\c' if a printable character with bit 7 set, or '/c' if a
+control character with bit 7 set (where 'c' is the character). If
+your terminal is able to display these characters then EXPRESS will
+display them as regular characters provided you appropriately set
+the 'Highest Displayable Character' parameter in the <T> option of
+ECONFIG.
+
+Bit 7 Next Character    ^U^C (______)
+
+This command is the same as the 'Literal Next Character' command, except
+that the high bit (bit 7) of whatever character you type next is set (to
+a 1) before the character is placed in the file.
+
+The rules for 'Bit 7 Next Character' are the same as those for 'Literal
+Next Character'.
+
+
+Enter/Leave Command Mode    ^[ <ESC> (______)
+
+This command clears the screen and places you in command mode.
+When in command mode, the cursor is placed after a prompt '>'
+and you may input any of the commands described in the 'Command
+Mode' section of this manual. Any single-line editing command may be
+used for editing your entry on the command line. For instance, you
+can even delete a word while in edit mode and UNdelete it onto the
+command line.
+
+If you are currently in command mode, you can enter edit mode by
+typing this same command; you may think of it as a toggle
+switch, moving you between the two modes of operation.
+
+This key is also used to get you out of various situations that
+you may find yourself in (similar to ^C in CP/M). For instance,
+the TYPE command and the BPRINT command use this key to cancel
+their operation immediately and return, of course, to command
+mode.
+CUSTOMIZING_EXPRESS_with_ECONFIG
+
+The configurator program (ECONFIG.COM) allows you to modify the
+necessary portions of EXPRESS to allow it to run on different sets
+of hardware (terminals, disk systems, etc.) You can also use ECONFIG
+to change the default values of a few important internal variables
+(tab settings, margins, etc.) to make editing more convenient and
+productive.
+
+Specifying`Filenames`for`ECONFIG
+
+Unless told otherwise, ECONFIG always assumes you have called it up from
+the default drive and that there is a file called E.COM also on the
+default drive. If you want to use the predefined terminals in the
+terminal database, you must have the file TERM.DAT on the default drive
+(or specify an alternate database as described in a moment). To use
+ECONFIG to modify a copy of EXPRESS that is named differently or is on
+another drive, give the name and location of the .COM file on the
+command line:
+
+A>econfig b:edit.com
+
+will configure the file EDIT.COM on drive B. To use a terminal database
+that is named differently or is on another drive, put the name of
+the .COM file followed by the name of the terminal database file on the
+command line:
+
+A>econfig e.com c:terminal.spc
+
+will configure E.COM on the default drive (A in this case) and get its
+terminal information from the file TERMINAL.SPC on drive C. It is
+not likely that this will be used often, since ECONFIG automatically
+adds your new definitions to TERM.DAT up to a maximum of 97
+different terminals. It is nice to know the capability is there
+though (in case you have more than 97 different terminals hooked to
+your system).
+
+MAIN_MENU
+
+ECONFIG gives you a choice of four things to do:
+
+<T>erminal Installation, <C>ommand Installation,
+<D>efault Parameter Selection, <E>nd >_
+
+Type the letter inside the brackets, followed by a carriage return,
+<CR>, to select the appropriate choice.
+
+
+<T>erminal Installation
+
+Leads you into an interactive session for selecting a previously
+defined terminal or creating a new terminal definition.
+
+
+<C>ommand Installation
+
+Allows you to modify the editing key layout to conform to your
+hardware and to your personal tastes. You can very easily set up
+EXPRESS to recognize those special function keys on your terminal.
+The command installation may also be used to set up the control key
+editing commands on EXPRESS to emulate other editors which you have
+used in the past, or even to set up the keys to your own private
+layout.
+
+<D>efault Parameter Selection
+
+Enters an interactive session similar to that for defining a new
+terminal, except that you are changing parameters that are more
+user dependent' than 'terminal dependent'. (i.e. initial tab settings,
+margins, special characters, insert mode, word wrap, ...)
+
+<E>nd
+
+This selection simply exits the program and returns to the operating
+system prompt.
+
+Following is an explanation of the first three selections (the fourth
+shouldn't need any more), but first, a note on the different types of
+input used in ECONFIG:
+
+Input_Handling_in_ECONFIG
+
+The input handler for ECONFIG is very specialized. There are basically
+three types of input expected - numbers, ASCII strings, and Yes/No
+responses. Each of these is handled differently.
+
+Yes/No
+
+The simplest case is the Yes/No which requires a 'Y' or 'N' to be
+entered followed by a <CR>. If one of these letters (or their lower
+case equivalents) is not entered, you will be asked the same
+question again.
+
+Numbers
+
+When a number is requested, you are always told whether to give an
+answer in Decimal (base 10) or Hexadecimal (base 16). There will
+never be any question as to whether a decimal or hex number is
+required. Simply enter the number followed by a <CR>. If you enter
+an invalid number, it will simply translate to 0, so you must be
+careful about this.
+
+ASCII`Strings
+
+The third type of entry, ASCII string, is more specialized than
+the other two because some keyboards cannot produce all the ASCII
+characters directly. Therefore, you may enter a string as a sequence
+of actual ASCII characters, or you may enter it as a group of
+hexadecimal numbers separated by spaces. These two types of entry are
+automatically distinguished when being interpreted by looking at the
+FIRST character typed in the input line; if it is a valid digit
+(0-9) (NOTICE - I did not say anything about A-F!!) then the entire
+string is expected to be hex numbers; otherwise, it is interpreted
+literally, just as you typed it. You may not enter part of a line in
+hexadecimal and the rest in ASCII, you must choose one or the other.
+Most of the time you will use the ASCII mode because it is faster
+and easier to see exactly what is being entered.
+
+There are some other special features that should be mentioned here as
+well. You may enter any ASCII character except <RUB>, and ^M <CR> into
+an input line simply by typing it. RUB is used to edit within the line,
+and <CR> is used to terminate input. This should not provide any kind of
+conflict, since all terminals use these commands for the same purposes
+and we are not asking for those commands in any of the questions in the
+Terminal Installation. The only place you will possibly need to enter
+these keys into an input string is in the Command Installation, and you
+are allowed to define your own 'rubout' and 'return' keys there.
+Besides, you can always use their hexadecimal equivalents (0D for <RET>
+and 7F for <RUB>).
+
+Most control characters are displayed as '^c' where c is the control
+character+64 to make it displayable. The one exception is <ESC> (1Bh),
+which is displayed as '<ESC>' (imagine that...). This is because of the
+immense popularity of this control character as a command introducer
+or lead in character (What a lucky guy).
+
+
+<T>erminal_Installation
+
+The Terminal Installation section of ECONFIG is for installing the
+terminal dependent features of EXPRESS such as the method of positioning
+the cursor, clearing the screen, etc. ECONFIG gives a menu of terminals
+to choose from as well as the option of defining a new terminal not
+already supported:
+
+1)AIM 60                   2)ADDS 20/25/30
+3)ADDS Viewpoint 1A        4)ANSI Terminal
+5)BigBoard                 6)Heath/Zenith 19
+7)KayPro                   8)Lear Siegler ADM 3A
+    .                               .
+    .                               .
+    .                               .
+n)Snipe 13+              n+1)CREATE NEW DEFINITION
+
+ECONFIG pauses after every 30 terminals to give you a chance to look at
+the choices before they scroll off the screen. If you see the choice you
+want, enter its number; otherwise, type <CR> to see more choices.
+The final choice allows you to define a new terminal to be added to
+the database, the other selections are already defined terminals
+that you can install simply by selecting their number.
+
+If you have selected a pre-defined terminal, you will be asked if you
+would like to modify the definition. If you enter 'N' the definition is
+installed and you return to the main menu ( <T>, <C>, <D>, <E> ).
+
+Typing 'Y' begins an interactive session much like the description of
+entering a new terminal given below. The one difference is that all the
+values are already filled in for you. If you want to change one, simply use
+the RUBOUT key to backspace over the portion you wish to change and enter
+the new value. Before doing this, you should read the following section on
+entering a new terminal definition. If you give your approval of the
+changes, then they are installed in EXPRESS.COM and the terminal database
+is updated with the new values; otherwise, the changes are discarded.
+
+Creating a New Definition
+
+Making this selection enters you into an interactive session answering
+questions about your terminal's capabilities and command set.
+
+Each question is listed below along with a description of what is
+actually being requested and some hints on what can be done to make
+the most efficient use of your terminal's local editing
+capabilities. Some commands are optional. If they are, and your
+terminal does not have them, just enter a blank line. You should
+note the existence of as many features as possible to make the most
+efficient use of terminal input/output (with the exception of auto
+CR on End of Line, which actually slows down I/O.)
+
+Terminal Name >_    (optional)
+
+This is the string that will be printed at the top of the
+screen when in Command Mode of EXPRESS.
+
+Terminal Initialization String >_   (optional)
+
+This is a string of characters/commands to send to the terminal
+when EXPRESS is first called up.
+
+This is usually most useful for setting special modes in the
+terminal. Some examples are: changing the cursor character so
+that you will know at a glance that you are in EXPRESS, turning AUTO
+CR on End of Line OFF while in EXPRESS (more on this in a minute), and
+especially turning keypad function keys on.
+
+Terminal Reset String >_    (optional)
+
+Usually, this command UNdoes whatever the terminal initialization
+string DID. It is sent to the terminal immediately before exiting
+back to CP/M.
+
+CURSOR POSITION LEADIN Sequence >_
+
+This is the command that tells the terminal a cursor position
+address is following. The LEADIN is the part of the positioning
+command that is sent before the row or column address is sent.
+
+CURSOR POSITION SEPARATOR Sequence >_
+
+These are the characters to send BETWEEN the row and column
+addresses, irrespective of whether row or column is first.
+
+Usually, this sequence is left blank, but if there is a separator
+required for your terminal, it MUST be included or EXPRESS will not
+operate properly.
+
+CURSOR POSITION TERMINATOR Sequence >_
+
+These are the characters to send after both the row and the
+column have been sent.
+
+This is also usually left blank, but it too MUST be included, if
+your terminal requires it.
+
+COLUMN FIRST ? (Y/N) >_
+
+This indicates whether or not the column address is sent before
+the row during a positioning sequence. If column is first, enter
+'Y'. If row is first (the most common) enter 'N'.
+
+HEX OFFSET to add to LINE >_
+
+This is the number to add to the LINE (ROW) number when positioning the
+cursor. EXPRESS thinks of the screen as an array starting at (0,0) so
+the LINE OFFSET will be the number that must be sent to the terminal to
+position it on the top row.
+
+The line offset is nearly always 20 (32 decimal).
+
+HEX OFFSET to add to COLUMN >_
+
+Same as LINE OFFSET, except for column positioning. Usually this is the
+same value as LINE OFFSET.
+
+ASCII CURSOR ADDRESS ? (Y/N) >_
+
+If your terminal expects the ROW and COLUMN numbers to be sent as a
+string of ASCII numerals, answer Y, else answer N. This is very seldom
+used except on ANSI standard terminals.
+
+BCD (Binary Coded Decimal) CURSOR ADDRESS ? (Y/N) >_
+
+Enter Y if your terminal expects the ROW and COLUMN numbers to be sent
+as BCD numerals (packed half-ASCII). This type of cursor address is
+also very uncommon.
+
+If you answer NO to both of the preceding questions, ECONFIG will
+assume that the cursor address should be sent as a straight binary
+number. If you are unsure which your terminal uses, it would be
+safest to answer NO to both questions since binary addressing is the
+most common.
+
+CLEAR SCREEN and HOME CURSOR Sequence >_
+
+Enter the command sequence that will clear all the characters from your
+terminal's screen and place the cursor in the upper left corner of the
+screen. Usually this can be done with a single command, but on some
+terminals CLEAR SCREEN does not home the cursor. If that is the case,
+just give both commands.
+
+This command is required for proper operation of EXPRESS.
+
+CLEAR TO END OF SCREEN Sequence >_      (optional)
+
+Enter the command that will clear from the current cursor position to
+the end of the screen. The cursor should remain in its original position
+after the command is given.
+
+CLEAR TO END OF LINE Sequence >_        (optional)
+
+Enter the command that will clear from the current cursor position to
+the end of the line leaving the cursor in its original position.
+
+INSERT LINE Sequence >_                 (optional)
+
+Enter the command that will insert a single line at the current cursor
+position on the screen.
+
+If none is available, leave the entry blank, but you will suffer a
+significant degradation in performance when scrolling towards the
+beginning of the file (the entire screen must be repainted each time
+instead of a single line).
+
+DELETE LINE Sequence >_                 (optional)
+
+Enter the command that will delete the line the cursor is on and move
+all lines following up one line. If no delete line command is available,
+leave the entry blank.
+
+INSERT MODE ON INDICATOR Sequence >_    (optional)
+
+Enter a command that will give a visual indication that insert mode has
+been turned on. DO NOT give the command to place the terminal in insert
+mode!
+
+The most successful indicator we have found is changing the shape of the
+cursor - sending a command to make it a solid block when insert is on
+and a blinking underscore when insert is off. Another possibility is to
+turn on an LED on the terminal when in insert mode and turn it off when
+leaving insert mode.
+
+If you have no similar functions available on your terminal, leave the
+entries blank.
+
+INSERT MODE OFF INDICATOR Sequence >_
+
+Enter a command to counteract the INSERT MODE ON command.
+
+Number of LINES in DISPLAY (Decimal) >_
+
+Enter the number of lines in your CRT display. Do not count status
+lines, etc. Count only those lines that scroll normally with the
+rest of the screen. %BMake certain%b that you count %Ball%b the
+lines; otherwise, your screen will not scroll forward properly
+(forward scrolling is done by doing a linefeed (^J) off the bottom
+line of the screen).
+
+Most terminals have 24 lines, but EXPRESS will support terminals with
+any number of display lines (up to 64).
+
+Number of COLUMNS in DISPLAY >_
+
+Enter the number of columns in your CRT display. This number is usually
+80, but can be as low as 64 and as high as 127.
+
+Unlike the LINES, if you wish, you can enter a smaller number of
+columns than your terminal actually supports. For instance, many
+terminals have a 132 column mode, but EXPRESS only supports 127
+columns; just enter 127 for COLUMNS and everything will work just
+fine.
+
+If your terminal operates in 132 column and 80 column modes (e.g.
+WYSE-50), you can use the Terminal Initialization String to set 132
+column mode and the Terminal Reset String to switch back to 80 columns.
+
+Is There AUTO-CR on END of LINE ? (Y/N) >_
+
+If your terminal automatically moves the cursor to the beginning of the
+next line when a character is typed in the last column, answer YES;
+otherwise, answer NO.
+
+This is important to know because if your terminal does this, it is
+very dangerous to output a character to the last positon of the last
+line on the screen. Sending a character to this position would cause
+the screen to scroll without EXPRESS's knowledge and subsequent
+cursor positioning would be incorrect. Not fun!
+
+Most terminals DO give an Auto-CRLF at the end of the line, so if you
+aren't sure, just answer YES. If your terminal has a way to turn this
+feature off, put it in the Terminal Initialization String and answer NO.
+
+HIGHEST DISPLAYABLE CHARACTER for this Terminal >_
+
+Enter the highest character that can be directly displayed on your
+terminal. For most terminals this is the tilde character '~' (7Eh).
+For some terminals (such as the Hazeltine) it is lower.
+
+Some terminals (the 84 model Kaypro computers, for instance) display a
+graphics character set when characters with values greater than 7Fh are
+output. In these cases, give the hex value of the highest displayable
+character (such as '0F0'). Make sure that you precede the number with a
+'0'; that is how ECONFIG knows you are entering the character as a hex
+number rather than as a single ASCII character.
+
+Is This Definition Correct ? (Y/N) >_
+
+If you have typed everything correctly, answer 'Y' and the new terminal
+definition will be installed in E.COM and added to the terminal
+database. If you made a mistake, answer 'N' and you will be allowed to
+edit your entries or, if you like, return to the main menu.
+
+
+<C>ommand_Installation
+
+The Command Installation portion of ECONFIG lets you set up the editing
+keys to any layout you like. This capability was provided to achieve
+compatibility with other editors and to allow the use of special
+function keys on some terminals.
+
+You will be given the present key sequence setting for each command and
+allowed to change them if you wish, but first ECONFIG asks a few
+questions to help in entering the new keystrokes into its table:
+
+Ignore Upper/Lower Case ? (Y/N) >_
+
+Answer 'Y' if you want <ESC>Y to be interpreted the same as <ESC>y. This
+is handy if you will be typing escape sequences by hand rather than
+using function keys. If you are using function keys it is probably best
+to say 'N'.
+
+This setting also effects Macro Key definitions. One thing to notice,
+though, is that macro keys always distinguish upper/lower case on the
+FIRST character of the key sequence. This is so you can have upper (or
+lower) case letters defined as single key macro keys and still have use of
+the lower (or upper) case letters
+
+Rubout character while entering these commands >_
+
+Enter a single character that you will use to correct mistakes and erase
+old command definitions. Usually the <RUB> or <DEL> key is used, but if
+you want to use that key in one of your key sequences, use something
+else (e.g. a number key or some special character like - or =)
+
+Type just the single key you want to be the rubout key, DO NOT TYPE
+<RET>.
+
+Return character while entering these commands >_
+
+Enter a single character that you will use to end editing each command.
+Usually the <RET> key (^M) is used, but if you will be using this key in
+one of the commands, use something else as the return key (again - a
+number key or one of the special characters, etc).
+
+Type just the single key you want to be the return key, DO NOT TYPE
+<RET>.
+
+Televideo users note: The Televideo 950 has function keys that output
+'^An<RET>' where ^A is the ASCII equivalent of 01h, n is a different
+character for each key, and <RET> is the ASCII 'carriage return' character.
+If you will be using these function keys or others like them, use a key
+other than <RET> for the 'return' key; otherwise the <RET> on the end of
+each key sequence will be lost and an extra <RET> command will be executed
+everytime you use one of the function keys in EXPRESS.
+
+Now you will be shown the current setting for each command. After each
+command key sequence is displayed, the cursor is left at the end of the
+line ready for you to change the sequence with your previously defined
+'rubout' key, or accept it as it is with the 'return' key.
+
+To modify a key sequence, type 'rubouts' to the beginning of the input
+line to remove the old key sequence, then type in the new sequence, just
+as you want to type it when running EXPRESS. For instance, if you want
+the 'NEXT WORD' command to be ^F^V then type ctrl+F followed by ctrl+V,
+then type 'return' (the return that you defined just a moment ago, not
+the <RET> key).
+
+If you do not expect to be using a command, just leave its keystroke
+sequence blank.
+
+If you enter two ambiguous commands (ones that could be confused with
+each other) ECONFIG will print the message:
+
+Your entry is ambiguous with: xxxxxx Please try Again...
+
+If this happens, type some other key sequence for the current command.
+If it was the earlier command that you made the mistake on rather than
+this one, just clear the input line with 'rubouts' and type returns
+through the rest of the questions to the end. Then say 'N' the
+definitions are not correct and 'Y' you would like to try again. Now you
+will be allowed to go through the process again to correct the
+erroneous entry.
+
+Notice that you can use nearly any keystroke sequence to for the
+commands; you are not restricted to one or two characters, or even to
+just control characters. You can use special keys with the high bit set,
+you can even use the standard alphabet as commands if you like (although
+you would then have to use the 'Literal Next Character' command before
+each character when you wanted to actually enter it into the text). The
+only limitation is that key sequences must be no longer than 10
+characters each.
+
+For a detailed description of each command (in the same order as they
+are prompted for in ECONFIG) see the Edit Mode section of the manual.
+
+When you are finished entering commands, you will be asked if the new
+definitions are correct. If they are, answer 'Y'; if not, answer 'N' and
+you will be allowed to try again or simply return to the main menu
+without installing the new commands.
+
+
+<D>efault_Parameter_Selection
+
+Use the Default Parameter Selection section of ECONFIG to change the
+initial values of EXPRESS's editing parameters. You can set tab stops,
+margins, and modes as well as turning the command mode menu on and off,
+deciding whether you will start editing in command mode or edit mode,
+and many other useful things.
+
+All questions will have default answers. If you like the current
+setting, just type <RET>; otherwise, use the <RUB> (DEL) key to
+remove the old setting and enter a new value.
+
+INITIAL COMMAND MODE on Entry to Editor ? (Y/N) >_
+
+As furnished, EXPRESS goes into command mode after initially reading in
+the file to edit. If you would rather go immediately to edit mode,
+answer 'N'.
+
+DISPLAY COMMANDS When in Command Mode ? (Y/N) >_
+
+A menu of all the commands available in command mode is usually printed
+on the screen when entering command mode. This is often helpful, but is
+a nuisance for applications such as remote access systems with low baud
+rates, etc. Answering 'N' turns the menu off.
+
+INSERT CHARACTER Mode ON ? (Y/N) >_
+
+Usually EXPRESS comes up in 'replace' mode (new characters are entered
+over the top of characters currently in the file). Answer 'Y' if you
+want EXPRESS to start in 'insert' mode (new character are inserted into
+the file).
+
+ENTRY Mode ON ? (Y/N) >_
+
+EXPRESS comes up with Entry mode off. When entry mode is on the carriage
+return key inserts a new line below the current one. If you want EXPRESS to
+start in Entry mode, answer 'Y'.
+
+INDENT (Left Margin) >_
+
+The value of Indent determines how far to the left you can place the
+cursor on the screen. Possible values are from 1 to (right margin-1).
+
+WRAP COLUMN (Right Margin) >_
+
+The value of the Wrap Column determines how far to the right words are
+allowed to go before they are 'wrapped' down to the next line. Possible
+values are from (indent+1) to the right side of the screen (usually 80).
+
+Does TAB key insert a TAB character (or just spaces) ? (Y/N) >_
+
+Usually the TAB key inserts a single ASCII TAB character into the file.
+This saves a considerable amount of space and allows recolumnarizing
+the file by merely changing the tab settings. Some programs, however, do
+not know what to do with tab characters, so spaces must be used instead.
+The most known example of a program that can't handle tabs is Turbo
+Pascal. If you will be using EXPRESS mainly to enter Turbo source files,
+answer 'N' (just spaces).
+
+Notice that turning Tabs 'Off' does not mean that EXPRESS will replace
+existing tabs in your files with spaces, it only suppresses entering new
+tab characters. To remove tabs from a file, try using the following PIP
+command:
+
+A>pip a:filename=filename[g0t8]
+
+Use of Tab characters can be turned on and off while editing with the
+'TABS ON' and 'TABS OFF' commands in command mode.
+
+Does <RET> in ENTRY Mode split the current line at the cursor ?  (Y/N) >_
+
+When entry mode is on, a <RET> command places the cursor at the
+beginning of the next line and inserts a new blank line there. If
+you would rather have the <RET> command break the current line in
+two and put the cursor at the beginning of the new line (similar to
+WordStar and Turbo) answer 'Y'.
+
+Can <RUB> delete a carriage return/linefeed ? (Y/N) >_
+
+Typing the <RUB> key at the beginning of a line usually moves the cursor
+up to the end of the previous line and concatenates it with the line
+below, effectively deleting the CRLF line separator. If you would rather
+have the <RUB> key take no action at the beginning of a line, answer
+'N'.
+
+Do next word/prev word commands recognize punctuation ? (Y/N) >_
+
+The Next Word and Prev Word commands usually search past punctuation and
+special characters looking for a numeric or alphabetic character to
+indicate the beginning or ending of a word. This is useful because words
+separated with commas but no spaces will be found. However, it is
+sometimes nice to define words as any non-spaces. If you would like
+spaces to be the only 'word delimiter', answer 'N'; if you want
+spaces and other special characters to be recognized as word
+delimiters, answer 'Y'.
+
+AUTO SCROLL SPEED >_
+
+The Auto Scroll Speed is usually defaulted to 0 (the fastest). If, for
+some reason, you want it to initially be slower, enter a number 1-9 (1
+is slowest, 9 is fastest other than 0). The Auto Scroll Speed can be
+changed while scrolling by typing 1-9 or 0.
+
+Character to Indicate CONTINUATION LINE >_
+
+Lines longer than the width of the screen are displayed by splitting
+them into two pieces and displaying the end of the line below the start
+of the line. The fact that the second line is a 'continuation' of the
+first is noted by a special character in the first position of the line.
+EXPRESS is shipped with '+' as the continuation character, but you can
+change it to any other single displayable character you like.
+
+
+Character to Indicate BLOCK MARKER >_
+
+The start and end of text blocks are shown by placing a single special
+character at the beginning of the first and last line of the block.
+EXPRESS is shipped with '|' as the block marker character, but you can
+change it to any other single displayable character you like.
+
+
+Text Formatter COMMAND character >_
+
+Most text formatters have special 'command lines' that are entered
+directly into the text and identified by placing a special character
+in the first position of the line. It is important for EXPRESS to
+know what this character is so that it doesn't try to 'reformat' the
+command line into the paragraph preceding it. The current setting is
+'.' which is the command character for ROFF4 and several other
+programs, but you can change it to any other single character.
+
+Minimum FREE SPACE after Disk Read (4-20K bytes) >_
+
+Some free space must be left in memory when reading in portions of a
+file larger than memory. EXPRESS usually leaves 4 kbytes of free memory.
+If this is too little or too much for your tastes, you can change it.
+
+Is This Definition Correct ? (Y/N) >_
+
+If everything has been entered correctly, answer 'Y' and the new
+settings will be written into E.COM. If something was entered wrong, or
+you decided you didn't want to change the setting after all, answer 'N'.

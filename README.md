@@ -4,7 +4,7 @@ Computer Z80 CPU running CP/M
 
 
 ## Config
-Z80 - 1.8432 Mhz or 4Mhz
+Z80 - 3.6864 Mhz (57600) or 7.3728 Mhz (115200)
 RAM - 64Kb
 ROM - 16Kb
 

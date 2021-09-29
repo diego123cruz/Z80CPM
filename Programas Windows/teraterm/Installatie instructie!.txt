@@ -1,0 +1,6 @@
+Installeren Teraterm 
+
+1.Pak het bestand uit en plaats naar eigen wens eregens op  de harde schijf zoals bijvoorbeeld C
+2. Open de teraterm map en zoek naar het bestand ttermpro en klik hier op om teraterm te openen.
+3.Als teraterm voor het eerst open verschijnt er een window met daarin TCP/IP aangevinkt. Druk op CANCEL om verder te gaan. 
+4. Lees de instructies voor verdere instellingen in de uitleg van de Z80 computer bouwkit
