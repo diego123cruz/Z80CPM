@@ -1,0 +1,1123 @@
+0001   0000             ;==================================================================================
+0002   0000             ; Contents of this file are copyright Grant Searle
+0003   0000             ; HEX routines from Joel Owens.
+0004   0000             ;
+0005   0000             ; You have permission to use this for NON COMMERCIAL USE ONLY
+0006   0000             ; If you wish to use it elsewhere, please include an acknowledgement to myself.
+0007   0000             ;
+0008   0000             ; http://searle.hostei.com/grant/index.html
+0009   0000             ;
+0010   0000             ; eMail: home.micros01@btinternet.com
+0011   0000             ;
+0012   0000             ; If the above don't work, please perform an Internet search to see if I have
+0013   0000             ; updated the web page hosting service.
+0014   0000             ;
+0015   0000             ;==================================================================================
+0016   0000             
+0017   0000             ;------------------------------------------------------------------------------
+0018   0000             ;
+0019   0000             ; Z80 Monitor Rom
+0020   0000             ;
+0021   0000             ;------------------------------------------------------------------------------
+0022   0000             ; General Equates
+0023   0000             ;------------------------------------------------------------------------------
+0024   0000             
+0025   0000             CR		.EQU	0DH
+0026   0000             LF		.EQU	0AH
+0027   0000             ESC		.EQU	1BH
+0028   0000             CTRLC		.EQU	03H
+0029   0000             CLS		.EQU	0CH
+0030   0000             
+0031   0000             ; CF registers
+0032   0000             CF_DATA		.EQU	$10
+0033   0000             CF_FEATURES	.EQU	$11
+0034   0000             CF_ERROR	.EQU	$11
+0035   0000             CF_SECCOUNT	.EQU	$12
+0036   0000             CF_SECTOR	.EQU	$13
+0037   0000             CF_CYL_LOW	.EQU	$14
+0038   0000             CF_CYL_HI	.EQU	$15
+0039   0000             CF_HEAD		.EQU	$16
+0040   0000             CF_STATUS	.EQU	$17
+0041   0000             CF_COMMAND	.EQU	$17
+0042   0000             CF_LBA0		.EQU	$13
+0043   0000             CF_LBA1		.EQU	$14
+0044   0000             CF_LBA2		.EQU	$15
+0045   0000             CF_LBA3		.EQU	$16
+0046   0000             
+0047   0000             ;CF Features
+0048   0000             CF_8BIT		.EQU	1
+0049   0000             CF_NOCACHE	.EQU	082H
+0050   0000             ;CF Commands
+0051   0000             CF_READ_SEC	.EQU	020H
+0052   0000             CF_WRITE_SEC	.EQU	030H
+0053   0000             CF_SET_FEAT	.EQU 	0EFH
+0054   0000             
+0055   0000             
+0056   0000             loadAddr	.EQU	0D000h	; CP/M load address
+0057   0000             numSecs		.EQU	24	; Number of 512 sectors to be loaded
+0058   0000             
+0059   0000             
+0060   0000             ;BASIC cold and warm entry points
+0061   0000             BASCLD		.EQU	$2000
+0062   0000             BASWRM		.EQU	$2003
+0063   0000             
+0064   0000             SER_BUFSIZE	.EQU	40H
+0065   0000             SER_FULLSIZE	.EQU	30H
+0066   0000             SER_EMPTYSIZE	.EQU	5
+0067   0000             
+0068   0000             RTS_HIGH	.EQU	0E8H
+0069   0000             RTS_LOW		.EQU	0EAH
+0070   0000             
+0071   0000             SIOA_D		.EQU	$00
+0072   0000             SIOA_C		.EQU	$02
+0073   0000             SIOB_D		.EQU	$01
+0074   0000             SIOB_C		.EQU	$03
+0075   0000             
+0076   0000             CTC_0		.EQU	$08
+0077   0000             
+0078   4000             		.ORG	$4000
+0079   4000             serABuf		.ds	SER_BUFSIZE
+0080   4040             serAInPtr	.ds	2
+0081   4042             serARdPtr	.ds	2
+0082   4044             serABufUsed	.ds	1
+0083   4045             serBBuf		.ds	SER_BUFSIZE
+0084   4085             serBInPtr	.ds	2
+0085   4087             serBRdPtr	.ds	2
+0086   4089             serBBufUsed	.ds	1
+0087   408A             
+0088   408A             primaryIO	.ds	1
+0089   408B             secNo		.ds	1
+0090   408C             dmaAddr		.ds	2
+0091   408E             
+0092   408E             stackSpace	.ds	32
+0093   40AE             STACK   	.EQU    $	; Stack top
+0094   40AE             
+0095   40AE             
+0096   40AE             ;------------------------------------------------------------------------------
+0097   40AE             ;                         START OF MONITOR ROM
+0098   40AE             ;------------------------------------------------------------------------------
+0099   40AE             
+0100   0000             MON		.ORG	$0000		; MONITOR ROM RESET VECTOR
+0101   0000             ;------------------------------------------------------------------------------
+0102   0000             ; Reset
+0103   0000             ;------------------------------------------------------------------------------
+0104   0000 F3          RST00		DI			;Disable INTerrupts
+0105   0001 C3 8A 01    		JP	INIT		;Initialize Hardware and go
+0106   0004 00          		NOP
+0107   0005 00          		NOP
+0108   0006 00          		NOP
+0109   0007 00          		NOP
+0110   0008             ;------------------------------------------------------------------------------
+0111   0008             ; TX a character over RS232 wait for TXDONE first.
+0112   0008             ;------------------------------------------------------------------------------
+0113   0008 C3 24 01    RST08		JP	conout
+0114   000B 00          		NOP
+0115   000C 00          		NOP
+0116   000D 00          		NOP
+0117   000E 00          		NOP
+0118   000F 00          		NOP
+0119   0010             ;------------------------------------------------------------------------------
+0120   0010             ; RX a character from buffer wait until char ready.
+0121   0010             ;------------------------------------------------------------------------------
+0122   0010 C3 C0 00    RST10		JP	conin
+0123   0013 00          		NOP
+0124   0014 00          		NOP
+0125   0015 00          		NOP
+0126   0016 00          		NOP
+0127   0017 00          		NOP
+0128   0018             ;------------------------------------------------------------------------------
+0129   0018             ; Check input buffer status
+0130   0018             ;------------------------------------------------------------------------------
+0131   0018 C3 54 01    RST18		JP	CKINCHAR
+0132   001B             
+0133   001B             ;------------------------------------------------------------------------------
+0134   001B             ; SIO Vector = 0x60
+0135   001B             ;------------------------------------------------------------------------------
+0136   001B             
+0137   0060             		.ORG	$0060
+0138   0060 62 00       		.DW	serialInt
+0139   0062             
+0140   0062             
+0141   0062             ;------------------------------------------------------------------------------
+0142   0062             ; Serial interrupt handlers
+0143   0062             ; Same interrupt called if either of the inputs receives a character
+0144   0062             ; so need to check the status of each SIO input.
+0145   0062             ;------------------------------------------------------------------------------
+0146   0062 F5          serialInt:	PUSH	AF
+0147   0063 E5          		PUSH	HL
+0148   0064             
+0149   0064             		; Check if there is a char in channel A
+0150   0064             		; If not, there is a char in channel B
+0151   0064 97          		SUB	A
+0152   0065 D3 02       		OUT 	(SIOA_C),A
+0153   0067 DB 02       		IN   	A,(SIOA_C)	; Status byte D2=TX Buff Empty, D0=RX char ready	
+0154   0069 0F          		RRCA			; Rotates RX status into Carry Flag,	
+0155   006A 30 2A       		JR	NC, serialIntB
+0156   006C             
+0157   006C             serialIntA:
+0158   006C 2A 40 40    		LD	HL,(serAInPtr)
+0159   006F 23          		INC	HL
+0160   0070 7D          		LD	A,L
+0161   0071 FE 40       		CP	(serABuf+SER_BUFSIZE) & $FF
+0162   0073 20 03       		JR	NZ, notAWrap
+0163   0075 21 00 40    		LD	HL,serABuf
+0164   0078             notAWrap:
+0165   0078 22 40 40    		LD	(serAInPtr),HL
+0166   007B DB 00       		IN	A,(SIOA_D)
+0167   007D 77          		LD	(HL),A
+0168   007E             
+0169   007E 3A 44 40    		LD	A,(serABufUsed)
+0170   0081 3C          		INC	A
+0171   0082 32 44 40    		LD	(serABufUsed),A
+0172   0085 FE 30       		CP	SER_FULLSIZE
+0173   0087 38 08       		JR	C,rtsA0
+0174   0089 3E 05       	        LD   	A,$05
+0175   008B D3 02       		OUT  	(SIOA_C),A
+0176   008D 3E E8       	        LD   	A,RTS_HIGH
+0177   008F D3 02       		OUT  	(SIOA_C),A
+0178   0091             rtsA0:
+0179   0091 E1          		POP	HL
+0180   0092 F1          		POP	AF
+0181   0093 FB          		EI
+0182   0094 ED 4D       		RETI
+0183   0096             
+0184   0096             serialIntB:
+0185   0096 2A 85 40    		LD	HL,(serBInPtr)
+0186   0099 23          		INC	HL
+0187   009A 7D          		LD	A,L
+0188   009B FE 85       		CP	(serBBuf+SER_BUFSIZE) & $FF
+0189   009D 20 03       		JR	NZ, notBWrap
+0190   009F 21 45 40    		LD	HL,serBBuf
+0191   00A2             notBWrap:
+0192   00A2 22 85 40    		LD	(serBInPtr),HL
+0193   00A5 DB 01       		IN	A,(SIOB_D)
+0194   00A7 77          		LD	(HL),A
+0195   00A8             
+0196   00A8 3A 89 40    		LD	A,(serBBufUsed)
+0197   00AB 3C          		INC	A
+0198   00AC 32 89 40    		LD	(serBBufUsed),A
+0199   00AF FE 30       		CP	SER_FULLSIZE
+0200   00B1 38 08       		JR	C,rtsB0
+0201   00B3 3E 05       	        LD   	A,$05
+0202   00B5 D3 03       		OUT  	(SIOB_C),A
+0203   00B7 3E E8       	        LD   	A,RTS_HIGH
+0204   00B9 D3 03       		OUT  	(SIOB_C),A
+0205   00BB             rtsB0:
+0206   00BB E1          		POP	HL
+0207   00BC F1          		POP	AF
+0208   00BD FB          		EI
+0209   00BE ED 4D       		RETI
+0210   00C0             
+0211   00C0             ;------------------------------------------------------------------------------
+0212   00C0             ; Console input routine
+0213   00C0             ; Use the "primaryIO" flag to determine which input port to monitor.
+0214   00C0             ;------------------------------------------------------------------------------
+0215   00C0             conin:
+0216   00C0 E5          		PUSH	HL
+0217   00C1 3A 8A 40    		LD	A,(primaryIO)
+0218   00C4 FE 00       		CP	0
+0219   00C6 20 2E       		JR	NZ,coninB
+0220   00C8             coninA:
+0221   00C8             
+0222   00C8             waitForCharA:
+0223   00C8 3A 44 40    		LD	A,(serABufUsed)
+0224   00CB FE 00       		CP	$00
+0225   00CD 28 F9       		JR	Z, waitForCharA
+0226   00CF 2A 42 40    		LD	HL,(serARdPtr)
+0227   00D2 23          		INC	HL
+0228   00D3 7D          		LD	A,L
+0229   00D4 FE 40       		CP	(serABuf+SER_BUFSIZE) & $FF
+0230   00D6 20 03       		JR	NZ, notRdWrapA
+0231   00D8 21 00 40    		LD	HL,serABuf
+0232   00DB             notRdWrapA:
+0233   00DB F3          		DI
+0234   00DC 22 42 40    		LD	(serARdPtr),HL
+0235   00DF             
+0236   00DF 3A 44 40    		LD	A,(serABufUsed)
+0237   00E2 3D          		DEC	A
+0238   00E3 32 44 40    		LD	(serABufUsed),A
+0239   00E6             
+0240   00E6 FE 05       		CP	SER_EMPTYSIZE
+0241   00E8 30 08       		JR	NC,rtsA1
+0242   00EA 3E 05       	        LD   	A,$05
+0243   00EC D3 02       		OUT  	(SIOA_C),A
+0244   00EE 3E EA       	        LD   	A,RTS_LOW
+0245   00F0 D3 02       		OUT  	(SIOA_C),A
+0246   00F2             rtsA1:
+0247   00F2 7E          		LD	A,(HL)
+0248   00F3 FB          		EI
+0249   00F4             
+0250   00F4 E1          		POP	HL
+0251   00F5             
+0252   00F5 C9          		RET	; Char ready in A
+0253   00F6             
+0254   00F6             
+0255   00F6             coninB:
+0256   00F6             
+0257   00F6             waitForCharB:
+0258   00F6 3A 89 40    		LD	A,(serBBufUsed)
+0259   00F9 FE 00       		CP	$00
+0260   00FB 28 F9       		JR	Z, waitForCharB
+0261   00FD 2A 87 40    		LD	HL,(serBRdPtr)
+0262   0100 23          		INC	HL
+0263   0101 7D          		LD	A,L
+0264   0102 FE 85       		CP	(serBBuf+SER_BUFSIZE) & $FF
+0265   0104 20 03       		JR	NZ, notRdWrapB
+0266   0106 21 45 40    		LD	HL,serBBuf
+0267   0109             notRdWrapB:
+0268   0109 F3          		DI
+0269   010A 22 87 40    		LD	(serBRdPtr),HL
+0270   010D             
+0271   010D 3A 89 40    		LD	A,(serBBufUsed)
+0272   0110 3D          		DEC	A
+0273   0111 32 89 40    		LD	(serBBufUsed),A
+0274   0114             
+0275   0114 FE 05       		CP	SER_EMPTYSIZE
+0276   0116 30 08       		JR	NC,rtsB1
+0277   0118 3E 05       	        LD   	A,$05
+0278   011A D3 03       		OUT  	(SIOB_C),A
+0279   011C 3E EA       	        LD   	A,RTS_LOW
+0280   011E D3 03       		OUT  	(SIOB_C),A
+0281   0120             rtsB1:
+0282   0120 7E          		LD	A,(HL)
+0283   0121 FB          		EI
+0284   0122             
+0285   0122 E1          		POP	HL
+0286   0123             
+0287   0123 C9          		RET	; Char ready in A
+0288   0124             
+0289   0124             ;------------------------------------------------------------------------------
+0290   0124             ; Console output routine
+0291   0124             ; Use the "primaryIO" flag to determine which output port to send a character.
+0292   0124             ;------------------------------------------------------------------------------
+0293   0124 F5          conout:		PUSH	AF		; Store character
+0294   0125 3A 8A 40    		LD	A,(primaryIO)
+0295   0128 FE 00       		CP	0
+0296   012A 20 0D       		JR	NZ,conoutB1
+0297   012C 18 01       		JR	conoutA1
+0298   012E             conoutA:
+0299   012E F5          		PUSH	AF
+0300   012F             
+0301   012F CD 42 01    conoutA1:	CALL	CKSIOA		; See if SIO channel A is finished transmitting
+0302   0132 28 FB       		JR	Z,conoutA1	; Loop until SIO flag signals ready
+0303   0134 F1          		POP	AF		; RETrieve character
+0304   0135 D3 00       		OUT	(SIOA_D),A	; OUTput the character
+0305   0137 C9          		RET
+0306   0138             
+0307   0138             conoutB:
+0308   0138 F5          		PUSH	AF
+0309   0139             
+0310   0139 CD 4B 01    conoutB1:	CALL	CKSIOB		; See if SIO channel B is finished transmitting
+0311   013C 28 FB       		JR	Z,conoutB1	; Loop until SIO flag signals ready
+0312   013E F1          		POP	AF		; RETrieve character
+0313   013F D3 01       		OUT	(SIOB_D),A	; OUTput the character
+0314   0141 C9          		RET
+0315   0142             
+0316   0142             ;------------------------------------------------------------------------------
+0317   0142             ; I/O status check routine
+0318   0142             ; Use the "primaryIO" flag to determine which port to check.
+0319   0142             ;------------------------------------------------------------------------------
+0320   0142             CKSIOA
+0321   0142 97          		SUB	A
+0322   0143 D3 02       		OUT 	(SIOA_C),A
+0323   0145 DB 02       		IN   	A,(SIOA_C)	; Status byte D2=TX Buff Empty, D0=RX char ready	
+0324   0147 0F          		RRCA			; Rotates RX status into Carry Flag,	
+0325   0148 CB 4F       		BIT  	1,A		; Set Zero flag if still transmitting character	
+0326   014A C9                  	RET
+0327   014B             
+0328   014B             CKSIOB
+0329   014B 97          		SUB	A
+0330   014C D3 03       		OUT 	(SIOB_C),A
+0331   014E DB 03       		IN   	A,(SIOB_C)	; Status byte D2=TX Buff Empty, D0=RX char ready	
+0332   0150 0F          		RRCA			; Rotates RX status into Carry Flag,	
+0333   0151 CB 4F       		BIT  	1,A		; Set Zero flag if still transmitting character	
+0334   0153 C9                  	RET
+0335   0154             
+0336   0154             ;------------------------------------------------------------------------------
+0337   0154             ; Check if there is a character in the input buffer
+0338   0154             ; Use the "primaryIO" flag to determine which port to check.
+0339   0154             ;------------------------------------------------------------------------------
+0340   0154             CKINCHAR
+0341   0154 3A 8A 40    		LD	A,(primaryIO)
+0342   0157 FE 00       		CP	0
+0343   0159 20 06       		JR	NZ,ckincharB
+0344   015B             
+0345   015B             ckincharA:
+0346   015B             
+0347   015B 3A 44 40    		LD	A,(serABufUsed)
+0348   015E FE 00       		CP	$0
+0349   0160 C9          		RET
+0350   0161             
+0351   0161             ckincharB:
+0352   0161             
+0353   0161 3A 89 40    		LD	A,(serBBufUsed)
+0354   0164 FE 00       		CP	$0
+0355   0166 C9          		RET
+0356   0167             
+0357   0167             ;------------------------------------------------------------------------------
+0358   0167             ; Filtered Character I/O
+0359   0167             ;------------------------------------------------------------------------------
+0360   0167             
+0361   0167 D7          RDCHR		RST	10H
+0362   0168 FE 0A       		CP	LF
+0363   016A 28 FB       		JR	Z,RDCHR		; Ignore LF
+0364   016C FE 1B       		CP	ESC
+0365   016E 20 02       		JR	NZ,RDCHR1
+0366   0170 3E 03       		LD	A,CTRLC		; Change ESC to CTRL-C
+0367   0172 C9          RDCHR1		RET
+0368   0173             
+0369   0173 FE 0D       WRCHR		CP	CR
+0370   0175 28 0A       		JR	Z,WRCRLF	; When CR, write CRLF
+0371   0177 FE 0C       		CP	CLS
+0372   0179 28 04       		JR	Z,WR		; Allow write of "CLS"
+0373   017B FE 20       		CP	' '		; Don't write out any other control codes
+0374   017D 38 01       		JR	C,NOWR		; ie. < space
+0375   017F CF          WR		RST	08H
+0376   0180 C9          NOWR		RET
+0377   0181             
+0378   0181 3E 0D       WRCRLF		LD	A,CR
+0379   0183 CF          		RST	08H
+0380   0184 3E 0A       		LD	A,LF
+0381   0186 CF          		RST	08H
+0382   0187 3E 0D       		LD	A,CR
+0383   0189 C9          		RET
+0384   018A             
+0385   018A             
+0386   018A             ;------------------------------------------------------------------------------
+0387   018A             ; Initialise hardware and start main loop
+0388   018A             ;------------------------------------------------------------------------------
+0389   018A 31 AE 40    INIT		LD   SP,STACK		; Set the Stack Pointer
+0390   018D             
+0391   018D 21 00 40    		LD	HL,serABuf
+0392   0190 22 40 40    		LD	(serAInPtr),HL
+0393   0193 22 42 40    		LD	(serARdPtr),HL
+0394   0196             
+0395   0196 21 45 40    		LD	HL,serBBuf
+0396   0199 22 85 40    		LD	(serBInPtr),HL
+0397   019C 22 87 40    		LD	(serBRdPtr),HL
+0398   019F             
+0399   019F AF          		xor	a			;0 to accumulator
+0400   01A0 32 44 40    		LD	(serABufUsed),A
+0401   01A3 32 89 40    		LD	(serBBufUsed),A
+0402   01A6             
+0403   01A6             ;	Initialise CTC - SIO B 9600bps
+0404   01A6 3E 55       		LD  A, $55
+0405   01A8 D3 08       		OUT (CTC_0),A
+0406   01AA 3E 06       		LD  A,$06
+0407   01AC D3 08       		OUT (CTC_0),A
+0408   01AE             
+0409   01AE             ;	Initialise SIO
+0410   01AE             
+0411   01AE 3E 00       		LD	A,$00
+0412   01B0 D3 02       		OUT	(SIOA_C),A
+0413   01B2 3E 18       		LD	A,$18
+0414   01B4 D3 02       		OUT	(SIOA_C),A
+0415   01B6             
+0416   01B6 3E 04       		LD	A,$04
+0417   01B8 D3 02       		OUT	(SIOA_C),A
+0418   01BA 3E C4       		LD	A,$C4
+0419   01BC D3 02       		OUT	(SIOA_C),A
+0420   01BE             
+0421   01BE 3E 01       		LD	A,$01
+0422   01C0 D3 02       		OUT	(SIOA_C),A
+0423   01C2 3E 18       		LD	A,$18
+0424   01C4 D3 02       		OUT	(SIOA_C),A
+0425   01C6             
+0426   01C6 3E 03       		LD	A,$03
+0427   01C8 D3 02       		OUT	(SIOA_C),A
+0428   01CA 3E E1       		LD	A,$E1
+0429   01CC D3 02       		OUT	(SIOA_C),A
+0430   01CE             
+0431   01CE 3E 05       		LD	A,$05
+0432   01D0 D3 02       		OUT	(SIOA_C),A
+0433   01D2 3E EA       		LD	A,RTS_LOW
+0434   01D4 D3 02       		OUT	(SIOA_C),A
+0435   01D6             
+0436   01D6 3E 00       		LD	A,$00
+0437   01D8 D3 03       		OUT	(SIOB_C),A
+0438   01DA 3E 18       		LD	A,$18
+0439   01DC D3 03       		OUT	(SIOB_C),A
+0440   01DE             
+0441   01DE 3E 04       		LD	A,$04
+0442   01E0 D3 03       		OUT	(SIOB_C),A
+0443   01E2 3E C4       		LD	A,$C4
+0444   01E4 D3 03       		OUT	(SIOB_C),A
+0445   01E6             
+0446   01E6 3E 01       		LD	A,$01
+0447   01E8 D3 03       		OUT	(SIOB_C),A
+0448   01EA 3E 18       		LD	A,$18
+0449   01EC D3 03       		OUT	(SIOB_C),A
+0450   01EE             
+0451   01EE 3E 02       		LD	A,$02
+0452   01F0 D3 03       		OUT	(SIOB_C),A
+0453   01F2 3E 60       		LD	A,$60		; INTERRUPT VECTOR ADDRESS
+0454   01F4 D3 03       		OUT	(SIOB_C),A
+0455   01F6             	
+0456   01F6 3E 03       		LD	A,$03
+0457   01F8 D3 03       		OUT	(SIOB_C),A
+0458   01FA 3E E1       		LD	A,$E1
+0459   01FC D3 03       		OUT	(SIOB_C),A
+0460   01FE             
+0461   01FE 3E 05       		LD	A,$05
+0462   0200 D3 03       		OUT	(SIOB_C),A
+0463   0202 3E EA       		LD	A,RTS_LOW
+0464   0204 D3 03       		OUT	(SIOB_C),A
+0465   0206             
+0466   0206             		; Interrupt vector in page 0
+0467   0206 3E 00       		LD	A,$00
+0468   0208 ED 47       		LD	I,A
+0469   020A             
+0470   020A ED 5E       		IM	2
+0471   020C FB          		EI
+0472   020D             
+0473   020D             		; Display the "Press space to start" message on both consoles
+0474   020D 3E 00       		LD	A,$00
+0475   020F 32 8A 40    		LD	(primaryIO),A
+0476   0212 21 69 06        		LD   	HL,INITTXT
+0477   0215 CD 5A 03    		CALL 	PRINT
+0478   0218 3E 01       		LD	A,$01
+0479   021A 32 8A 40    		LD	(primaryIO),A
+0480   021D 21 69 06        		LD   	HL,INITTXT
+0481   0220 CD 5A 03    		CALL 	PRINT
+0482   0223             
+0483   0223             		; Wait until space is in one of the buffers to determine the active console
+0484   0223             
+0485   0223             waitForSpace:
+0486   0223             
+0487   0223 CD 5B 01    		CALL ckincharA
+0488   0226 28 0F       		jr	Z,notInA
+0489   0228 3E 00       		LD	A,$00
+0490   022A 32 8A 40    		LD	(primaryIO),A
+0491   022D CD C0 00    		CALL	conin
+0492   0230 FE 20       		CP	' '
+0493   0232 C2 23 02    		JP	NZ, waitForSpace
+0494   0235 18 14       		JR	spacePressed
+0495   0237             
+0496   0237             notInA:
+0497   0237 CD 61 01    		CALL ckincharB
+0498   023A 28 E7       		JR	Z,waitForSpace
+0499   023C 3E 01       		LD	A,$01
+0500   023E 32 8A 40    		LD	(primaryIO),A
+0501   0241 CD C0 00    		CALL	conin
+0502   0244 FE 20       		CP	' '
+0503   0246 C2 23 02    		JP	NZ, waitForSpace
+0504   0249 18 00       		JR	spacePressed
+0505   024B             
+0506   024B             spacePressed:
+0507   024B             
+0508   024B             		; Clear message on both consoles
+0509   024B 3E 0C       		LD	A,$0C
+0510   024D CD 2E 01    		CALL	conoutA
+0511   0250 CD 38 01    		CALL	conoutB
+0512   0253             
+0513   0253             		; primaryIO is now set to the channel where SPACE was pressed
+0514   0253             	
+0515   0253             
+0516   0253 CD 61 03    		CALL TXCRLF	; TXCRLF
+0517   0256 21 F6 04    		LD   HL,SIGNON	; Print SIGNON message
+0518   0259 CD 5A 03    		CALL PRINT
+0519   025C             
+0520   025C             ;------------------------------------------------------------------------------
+0521   025C             ; Monitor command loop
+0522   025C             ;------------------------------------------------------------------------------
+0523   025C 21 5C 02    MAIN  		LD   HL,MAIN	; Save entry point for Monitor	
+0524   025F E5          		PUSH HL		; This is the return address
+0525   0260 CD 61 03    MAIN0		CALL TXCRLF	; Entry point for Monitor, Normal	
+0526   0263 3E 3E       		LD   A,'>'	; Get a ">"	
+0527   0265 CF          		RST 08H		; print it
+0528   0266             
+0529   0266 CD 67 01    MAIN1		CALL RDCHR	; Get a character from the input port
+0530   0269 FE 20       		CP   ' '	; <spc> or less? 	
+0531   026B 38 F9       		JR   C,MAIN1	; Go back
+0532   026D             	
+0533   026D FE 3A       		CP   ':'	; ":"?
+0534   026F CA D8 03    		JP   Z,LOAD	; First character of a HEX load
+0535   0272             
+0536   0272 CD 73 01    		CALL WRCHR	; Print char on console
+0537   0275             
+0538   0275 FE 3F       		CP   '?'
+0539   0277 CA 30 04    		JP   Z,HELP
+0540   027A             
+0541   027A E6 5F       		AND  $5F	; Make character uppercase
+0542   027C             
+0543   027C FE 52       		CP   'R'
+0544   027E CA 00 00    		JP   Z,RST00
+0545   0281             
+0546   0281 FE 53       		CP   'S'
+0547   0283 CA 9A 02    		JP   Z,SERIAL
+0548   0286             
+0549   0286 FE 42       		CP   'B'
+0550   0288 CA 19 04    		JP   Z,BASIC
+0551   028B             
+0552   028B FE 47       		CP   'G'
+0553   028D CA D2 03    		JP   Z,GOTO
+0554   0290             
+0555   0290 FE 58       		CP   'X'
+0556   0292 CA 37 04    		JP   Z,CPMLOAD
+0557   0295             
+0558   0295 3E 3F       		LD   A,'?'	; Get a "?"	
+0559   0297 CF          		RST 08H		; Print it
+0560   0298 18 C6       		JR   MAIN0
+0561   029A             	
+0562   029A             
+0563   029A             ;------------------------------------------------------------------------------
+0564   029A             ; Serial port B config (default 9600)
+0565   029A             ;------------------------------------------------------------------------------
+0566   029A             SERIAL
+0567   029A 21 78 05    		LD   HL,STR_S	; Print SERIAL OPTIONS message
+0568   029D CD 5A 03    		CALL PRINT
+0569   02A0 3E 3E       		LD   A,'>'	; Get a ">"	
+0570   02A2 CF          		RST 08H		; print it
+0571   02A3             
+0572   02A3 CD 67 01    S_LOOP		CALL RDCHR	; Get a character from the input port
+0573   02A6 FE 20       		CP   ' '	; <spc> or less? 	
+0574   02A8 38 F9       		JR   C,S_LOOP	; Go back
+0575   02AA             
+0576   02AA CF          		RST 08H		; print it
+0577   02AB             
+0578   02AB FE 30       		CP   '0'	; 57600
+0579   02AD CA E3 02    		JP   Z, SERIAL0	
+0580   02B0             
+0581   02B0 FE 31       		CP   '1'	; 28800
+0582   02B2 CA EE 02    		JP   Z, SERIAL1
+0583   02B5             
+0584   02B5 FE 32       		CP   '2'	; 19200
+0585   02B7 CA F9 02    		JP   Z, SERIAL2	
+0586   02BA             
+0587   02BA FE 33       		CP   '3'	; 14400
+0588   02BC CA 04 03    		JP   Z, SERIAL3	
+0589   02BF             
+0590   02BF FE 34       		CP   '4'	; 9600
+0591   02C1 CA 0F 03    		JP   Z, SERIAL4	
+0592   02C4             
+0593   02C4 FE 35       		CP   '5'	; 4800
+0594   02C6 CA 1A 03    		JP   Z, SERIAL5	
+0595   02C9             
+0596   02C9 FE 36       		CP   '6'	; 2400
+0597   02CB CA 25 03    		JP   Z, SERIAL6	
+0598   02CE             
+0599   02CE FE 37       		CP   '7'	; 1200
+0600   02D0 CA 30 03    		JP   Z, SERIAL7	
+0601   02D3             
+0602   02D3 FE 38       		CP   '8'	; 600
+0603   02D5 CA 3B 03    		JP   Z, SERIAL8	
+0604   02D8             
+0605   02D8 FE 39       		CP   '9'	; 300
+0606   02DA CA 46 03    		JP   Z, SERIAL9	
+0607   02DD             
+0608   02DD 3E 3F       		LD   A,'?'	; Get a "?"	
+0609   02DF CF          		RST 08H		; Print it
+0610   02E0             
+0611   02E0 C3 9A 02    		JP SERIAL
+0612   02E3             
+0613   02E3             SERIAL0
+0614   02E3 3E 55       		LD	 A, $55
+0615   02E5 D3 08       		OUT	 (CTC_0), A
+0616   02E7 3E 01       		LD	 A, 1
+0617   02E9 D3 08       		OUT	 (CTC_0), A
+0618   02EB C3 51 03    		JP	 S_END
+0619   02EE             
+0620   02EE             SERIAL1
+0621   02EE 3E 55       		LD	 A, $55
+0622   02F0 D3 08       		OUT	 (CTC_0), A
+0623   02F2 3E 02       		LD	 A, 2
+0624   02F4 D3 08       		OUT	 (CTC_0), A
+0625   02F6 C3 51 03    		JP	 S_END
+0626   02F9             
+0627   02F9             SERIAL2
+0628   02F9 3E 55       		LD	 A, $55
+0629   02FB D3 08       		OUT	 (CTC_0), A
+0630   02FD 3E 03       		LD	 A, 3
+0631   02FF D3 08       		OUT	 (CTC_0), A
+0632   0301 C3 51 03    		JP	 S_END
+0633   0304             
+0634   0304             SERIAL3
+0635   0304 3E 55       		LD	 A, $55
+0636   0306 D3 08       		OUT	 (CTC_0), A
+0637   0308 3E 04       		LD	 A, 4
+0638   030A D3 08       		OUT	 (CTC_0), A
+0639   030C C3 51 03    		JP	 S_END
+0640   030F             
+0641   030F             SERIAL4
+0642   030F 3E 55       		LD	 A, $55
+0643   0311 D3 08       		OUT	 (CTC_0), A
+0644   0313 3E 06       		LD	 A, 6
+0645   0315 D3 08       		OUT	 (CTC_0), A
+0646   0317 C3 51 03    		JP	 S_END
+0647   031A             
+0648   031A             SERIAL5
+0649   031A 3E 55       		LD	 A, $55
+0650   031C D3 08       		OUT	 (CTC_0), A
+0651   031E 3E 0C       		LD	 A, 12
+0652   0320 D3 08       		OUT	 (CTC_0), A
+0653   0322 C3 51 03    		JP	 S_END
+0654   0325             
+0655   0325             SERIAL6
+0656   0325 3E 55       		LD	 A, $55
+0657   0327 D3 08       		OUT	 (CTC_0), A
+0658   0329 3E 18       		LD	 A, 24
+0659   032B D3 08       		OUT	 (CTC_0), A
+0660   032D C3 51 03    		JP	 S_END
+0661   0330             
+0662   0330             SERIAL7
+0663   0330 3E 55       		LD	 A, $55
+0664   0332 D3 08       		OUT	 (CTC_0), A
+0665   0334 3E 30       		LD	 A, 48
+0666   0336 D3 08       		OUT	 (CTC_0), A
+0667   0338 C3 51 03    		JP	 S_END
+0668   033B             
+0669   033B             SERIAL8
+0670   033B 3E 55       		LD	 A, $55
+0671   033D D3 08       		OUT	 (CTC_0), A
+0672   033F 3E 60       		LD	 A, 96
+0673   0341 D3 08       		OUT	 (CTC_0), A
+0674   0343 C3 51 03    		JP	 S_END
+0675   0346             
+0676   0346             SERIAL9
+0677   0346 3E 55       		LD	 A, $55
+0678   0348 D3 08       		OUT	 (CTC_0), A
+0679   034A 3E C0       		LD	 A, 192
+0680   034C D3 08       		OUT	 (CTC_0), A
+0681   034E C3 51 03    		JP	 S_END
+0682   0351             
+0683   0351             S_END
+0684   0351 21 2C 06    		LD	 HL, STR_S_OK
+0685   0354 CD 5A 03    		CALL PRINT
+0686   0357 C3 30 04    		JP	 HELP
+0687   035A             
+0688   035A             ;------------------------------------------------------------------------------
+0689   035A             ; Print string of characters to Serial A until byte=$00, WITH CR, LF
+0690   035A             ;------------------------------------------------------------------------------
+0691   035A 7E          PRINT		LD   A,(HL)	; Get character
+0692   035B B7          		OR   A		; Is it $00 ?
+0693   035C C8          		RET  Z		; Then RETurn on terminator
+0694   035D CF          		RST  08H	; Print it
+0695   035E 23          		INC  HL		; Next Character
+0696   035F 18 F9       		JR   PRINT	; Continue until $00
+0697   0361             
+0698   0361             
+0699   0361 3E 0D       TXCRLF		LD   A,$0D	; 
+0700   0363 CF          		RST  08H	; Print character 
+0701   0364 3E 0A       		LD   A,$0A	; 
+0702   0366 CF          		RST  08H	; Print character
+0703   0367 C9          		RET
+0704   0368             
+0705   0368             ;------------------------------------------------------------------------------
+0706   0368             ; Get a character from the console, must be $20-$7F to be valid (no control characters)
+0707   0368             ; <Ctrl-c> and <SPACE> breaks with the Zero Flag set
+0708   0368             ;------------------------------------------------------------------------------	
+0709   0368 CD 67 01    GETCHR		CALL RDCHR	; RX a Character
+0710   036B FE 03       		CP   $03	; <ctrl-c> User break?
+0711   036D C8          		RET  Z			
+0712   036E FE 20       		CP   $20	; <space> or better?
+0713   0370 38 F6       		JR   C,GETCHR	; Do it again until we get something usable
+0714   0372 C9          		RET
+0715   0373             ;------------------------------------------------------------------------------
+0716   0373             ; Gets two ASCII characters from the console (assuming them to be HEX 0-9 A-F)
+0717   0373             ; Moves them into B and C, converts them into a byte value in A and updates a
+0718   0373             ; Checksum value in E
+0719   0373             ;------------------------------------------------------------------------------
+0720   0373 CD 68 03    GET2		CALL GETCHR	; Get us a valid character to work with
+0721   0376 47          		LD   B,A	; Load it in B
+0722   0377 CD 68 03    		CALL GETCHR	; Get us another character
+0723   037A 4F          		LD   C,A	; load it in C
+0724   037B CD B2 03    		CALL BCTOA	; Convert ASCII to byte
+0725   037E 4F          		LD   C,A	; Build the checksum
+0726   037F 7B          		LD   A,E
+0727   0380 91          		SUB  C		; The checksum should always equal zero when checked
+0728   0381 5F          		LD   E,A	; Save the checksum back where it came from
+0729   0382 79          		LD   A,C	; Retrieve the byte and go back
+0730   0383 C9          		RET
+0731   0384             ;------------------------------------------------------------------------------
+0732   0384             ; Gets four Hex characters from the console, converts them to values in HL
+0733   0384             ;------------------------------------------------------------------------------
+0734   0384 21 00 00    GETHL		LD   HL,$0000	; Gets xxxx but sets Carry Flag on any Terminator
+0735   0387 CD CB 03    		CALL ECHO	; RX a Character
+0736   038A FE 0D       		CP   $0D	; <CR>?
+0737   038C 20 0E       		JR   NZ,GETX2	; other key		
+0738   038E 37          SETCY		SCF		; Set Carry Flag
+0739   038F C9          		RET             ; and Return to main program		
+0740   0390             ;------------------------------------------------------------------------------
+0741   0390             ; This routine converts last four hex characters (0-9 A-F) user types into a value in HL
+0742   0390             ; Rotates the old out and replaces with the new until the user hits a terminating character
+0743   0390             ;------------------------------------------------------------------------------
+0744   0390 21 00 00    GETX		LD   HL,$0000	; CLEAR HL
+0745   0393 CD CB 03    GETX1		CALL ECHO	; RX a character from the console
+0746   0396 FE 0D       		CP   $0D	; <CR>
+0747   0398 C8          		RET  Z		; quit
+0748   0399 FE 2C       		CP   $2C	; <,> can be used to safely quit for multiple entries
+0749   039B C8          		RET  Z		; (Like filling both DE and HL from the user)
+0750   039C FE 03       GETX2		CP   $03	; Likewise, a <ctrl-C> will terminate clean, too, but
+0751   039E 28 EE       		JR   Z,SETCY	; It also sets the Carry Flag for testing later.
+0752   03A0 29          		ADD  HL,HL	; Otherwise, rotate the previous low nibble to high
+0753   03A1 29          		ADD  HL,HL	; rather slowly
+0754   03A2 29          		ADD  HL,HL	; until we get to the top
+0755   03A3 29          		ADD  HL,HL	; and then we can continue on.
+0756   03A4 D6 30       		SUB  $30	; Convert ASCII to byte	value
+0757   03A6 FE 0A       		CP   $0A	; Are we in the 0-9 range?
+0758   03A8 38 02       		JR   C,GETX3	; Then we just need to sub $30, but if it is A-F
+0759   03AA D6 07       		SUB  $07	; We need to take off 7 more to get the value down to
+0760   03AC E6 0F       GETX3		AND  $0F	; to the right hex value
+0761   03AE 85          		ADD  A,L	; Add the high nibble to the low
+0762   03AF 6F          		LD   L,A	; Move the byte back to A
+0763   03B0 18 E1       		JR   GETX1	; and go back for next character until he terminates
+0764   03B2             ;------------------------------------------------------------------------------
+0765   03B2             ; Convert ASCII characters in B C registers to a byte value in A
+0766   03B2             ;------------------------------------------------------------------------------
+0767   03B2 78          BCTOA		LD   A,B	; Move the hi order byte to A
+0768   03B3 D6 30       		SUB  $30	; Take it down from Ascii
+0769   03B5 FE 0A       		CP   $0A	; Are we in the 0-9 range here?
+0770   03B7 38 02       		JR   C,BCTOA1	; If so, get the next nybble
+0771   03B9 D6 07       		SUB  $07	; But if A-F, take it down some more
+0772   03BB 07          BCTOA1		RLCA		; Rotate the nybble from low to high
+0773   03BC 07          		RLCA		; One bit at a time
+0774   03BD 07          		RLCA		; Until we
+0775   03BE 07          		RLCA		; Get there with it
+0776   03BF 47          		LD   B,A	; Save the converted high nybble
+0777   03C0 79          		LD   A,C	; Now get the low order byte
+0778   03C1 D6 30       		SUB  $30	; Convert it down from Ascii
+0779   03C3 FE 0A       		CP   $0A	; 0-9 at this point?
+0780   03C5 38 02       		JR   C,BCTOA2	; Good enough then, but
+0781   03C7 D6 07       		SUB  $07	; Take off 7 more if it's A-F
+0782   03C9 80          BCTOA2		ADD  A,B	; Add in the high order nybble
+0783   03CA C9          		RET
+0784   03CB             
+0785   03CB             ;------------------------------------------------------------------------------
+0786   03CB             ; Get a character and echo it back to the user
+0787   03CB             ;------------------------------------------------------------------------------
+0788   03CB CD 67 01    ECHO		CALL	RDCHR
+0789   03CE CD 73 01    		CALL	WRCHR
+0790   03D1 C9          		RET
+0791   03D2             
+0792   03D2             ;------------------------------------------------------------------------------
+0793   03D2             ; GOTO command
+0794   03D2             ;------------------------------------------------------------------------------
+0795   03D2 CD 84 03    GOTO		CALL GETHL		; ENTRY POINT FOR <G>oto addr. Get XXXX from user.
+0796   03D5 D8          		RET  C			; Return if invalid       	
+0797   03D6 E5          		PUSH HL
+0798   03D7 C9          		RET			; Jump to HL address value
+0799   03D8             
+0800   03D8             ;------------------------------------------------------------------------------
+0801   03D8             ; LOAD Intel Hex format file from the console.
+0802   03D8             ; [Intel Hex Format is:
+0803   03D8             ; 1) Colon (Frame 0)
+0804   03D8             ; 2) Record Length Field (Frames 1 and 2)
+0805   03D8             ; 3) Load Address Field (Frames 3,4,5,6)
+0806   03D8             ; 4) Record Type Field (Frames 7 and 8)
+0807   03D8             ; 5) Data Field (Frames 9 to 9+2*(Record Length)-1
+0808   03D8             ; 6) Checksum Field - Sum of all byte values from Record Length to and 
+0809   03D8             ;   including Checksum Field = 0 ]
+0810   03D8             ;------------------------------------------------------------------------------	
+0811   03D8 1E 00       LOAD		LD   E,0	; First two Characters is the Record Length Field
+0812   03DA CD 73 03    		CALL GET2	; Get us two characters into BC, convert it to a byte <A>
+0813   03DD 57          		LD   D,A	; Load Record Length count into D
+0814   03DE CD 73 03    		CALL GET2	; Get next two characters, Memory Load Address <H>
+0815   03E1 67          		LD   H,A	; put value in H register.
+0816   03E2 CD 73 03    		CALL GET2	; Get next two characters, Memory Load Address <L>
+0817   03E5 6F          		LD   L,A	; put value in L register.
+0818   03E6 CD 73 03    		CALL GET2	; Get next two characters, Record Field Type
+0819   03E9 FE 01       		CP   $01	; Record Field Type 00 is Data, 01 is End of File
+0820   03EB 20 09       		JR   NZ,LOAD2	; Must be the end of that file
+0821   03ED CD 73 03    		CALL GET2	; Get next two characters, assemble into byte
+0822   03F0 7B          		LD   A,E	; Recall the Checksum byte
+0823   03F1 A7          		AND  A		; Is it Zero?
+0824   03F2 28 1E       		JR   Z,LOAD00	; Print footer reached message
+0825   03F4 18 15       		JR   LOADERR	; Checksums don't add up, Error out
+0826   03F6             		
+0827   03F6 7A          LOAD2		LD   A,D	; Retrieve line character counter	
+0828   03F7 A7          		AND  A		; Are we done with this line?
+0829   03F8 28 0B       		JR   Z,LOAD3	; Get two more ascii characters, build a byte and checksum
+0830   03FA CD 73 03    		CALL GET2	; Get next two chars, convert to byte in A, checksum it
+0831   03FD 77          		LD   (HL),A	; Move converted byte in A to memory location
+0832   03FE 23          		INC  HL		; Increment pointer to next memory location	
+0833   03FF 3E 2E       		LD   A,'.'	; Print out a "." for every byte loaded
+0834   0401 CF          		RST  08H	;
+0835   0402 15          		DEC  D		; Decrement line character counter
+0836   0403 18 F1       		JR   LOAD2	; and keep loading into memory until line is complete
+0837   0405             		
+0838   0405 CD 73 03    LOAD3		CALL GET2	; Get two chars, build byte and checksum
+0839   0408 7B          		LD   A,E	; Check the checksum value
+0840   0409 A7          		AND  A		; Is it zero?
+0841   040A C8          		RET  Z
+0842   040B             
+0843   040B 21 58 06    LOADERR		LD   HL,CKSUMERR  ; Get "Checksum Error" message
+0844   040E CD 5A 03    		CALL PRINT	; Print Message from (HL) and terminate the load
+0845   0411 C9          		RET
+0846   0412             
+0847   0412 21 8E 06    LOAD00  	LD   HL,LDETXT	; Print load complete message
+0848   0415 CD 5A 03    		CALL PRINT
+0849   0418 C9          		RET
+0850   0419             
+0851   0419             ;------------------------------------------------------------------------------
+0852   0419             ; Start BASIC command
+0853   0419             ;------------------------------------------------------------------------------
+0854   0419             BASIC
+0855   0419 21 45 06        		LD HL,BASTXT
+0856   041C CD 5A 03    		CALL PRINT
+0857   041F CD 68 03    		CALL GETCHR
+0858   0422 C8          		RET Z	; Cancel if CTRL-C
+0859   0423 E6 5F       		AND  $5F ; uppercase
+0860   0425 FE 43       		CP 'C'
+0861   0427 CA 00 20    		JP  Z,BASCLD
+0862   042A FE 57       		CP 'W'
+0863   042C CA 03 20    		JP  Z,BASWRM
+0864   042F C9          		RET
+0865   0430             
+0866   0430             ;------------------------------------------------------------------------------
+0867   0430             ; Display Help command
+0868   0430             ;------------------------------------------------------------------------------
+0869   0430 21 9F 06    HELP   	 	LD   HL,HLPTXT	; Print Help message
+0870   0433 CD 5A 03    		CALL PRINT
+0871   0436 C9          		RET
+0872   0437             	
+0873   0437             ;------------------------------------------------------------------------------
+0874   0437             ; CP/M load command
+0875   0437             ;------------------------------------------------------------------------------
+0876   0437             CPMLOAD
+0877   0437             
+0878   0437 21 49 04        		LD HL,CPMTXT
+0879   043A CD 5A 03    		CALL PRINT
+0880   043D CD 68 03    		CALL GETCHR
+0881   0440 C8          		RET Z	; Cancel if CTRL-C
+0882   0441 E6 5F       		AND  $5F ; uppercase
+0883   0443 FE 59       		CP 'Y'
+0884   0445 CA 6A 04    		JP  Z,CPMLOAD2
+0885   0448 C9          		RET
+0886   0449             CPMTXT
+0887   0449 0D 0A       		.BYTE	$0D,$0A
+0888   044B 426F6F742043		.TEXT	"Boot CP/M?"
+0888   0451 502F4D3F
+0889   0455 00          		.BYTE	$00
+0890   0456             
+0891   0456             CPMTXT2
+0892   0456 0D 0A       		.BYTE	$0D,$0A
+0893   0458 4C6F6164696E		.TEXT	"Loading CP/M..."
+0893   045E 672043502F4D2E2E2E
+0894   0467 0D 0A 00    		.BYTE	$0D,$0A,$00
+0895   046A             
+0896   046A             CPMLOAD2
+0897   046A 21 56 04        		LD HL,CPMTXT2
+0898   046D CD 5A 03    		CALL PRINT
+0899   0470             
+0900   0470             
+0901   0470 CD EB 04    		CALL	cfWait
+0902   0473 3E 01       		LD 	A,CF_8BIT	; Set IDE to be 8bit
+0903   0475 D3 11       		OUT	(CF_FEATURES),A
+0904   0477 3E EF       		LD	A,CF_SET_FEAT
+0905   0479 D3 17       		OUT	(CF_COMMAND),A
+0906   047B             
+0907   047B             
+0908   047B CD EB 04    		CALL	cfWait
+0909   047E 3E 82       		LD 	A,CF_NOCACHE	; No write cache
+0910   0480 D3 11       		OUT	(CF_FEATURES),A
+0911   0482 3E EF       		LD	A,CF_SET_FEAT
+0912   0484 D3 17       		OUT	(CF_COMMAND),A
+0913   0486             
+0914   0486 06 18       		LD	B,numSecs
+0915   0488             
+0916   0488 3E 00       		LD	A,0
+0917   048A 32 8B 40    		LD	(secNo),A
+0918   048D 21 00 D0    		LD	HL,loadAddr
+0919   0490 22 8C 40    		LD	(dmaAddr),HL
+0920   0493             processSectors:
+0921   0493             
+0922   0493 CD EB 04    		CALL	cfWait
+0923   0496             
+0924   0496 3A 8B 40    		LD	A,(secNo)
+0925   0499 D3 13       		OUT 	(CF_LBA0),A
+0926   049B 3E 00       		LD	A,0
+0927   049D D3 14       		OUT 	(CF_LBA1),A
+0928   049F D3 15       		OUT 	(CF_LBA2),A
+0929   04A1 3E E0       		LD	a,0E0H
+0930   04A3 D3 16       		OUT 	(CF_LBA3),A
+0931   04A5 3E 01       		LD 	A,1
+0932   04A7 D3 12       		OUT 	(CF_SECCOUNT),A
+0933   04A9             
+0934   04A9 CD C7 04    		call	read
+0935   04AC             
+0936   04AC 11 00 02    		LD	DE,0200H
+0937   04AF 2A 8C 40    		LD	HL,(dmaAddr)
+0938   04B2 19          		ADD	HL,DE
+0939   04B3 22 8C 40    		LD	(dmaAddr),HL
+0940   04B6 3A 8B 40    		LD	A,(secNo)
+0941   04B9 3C          		INC	A
+0942   04BA 32 8B 40    		LD	(secNo),A
+0943   04BD             
+0944   04BD 10 D4       		djnz	processSectors
+0945   04BF             
+0946   04BF             ; Start CP/M using entry at top of BIOS
+0947   04BF             ; The current active console stream ID is pushed onto the stack
+0948   04BF             ; to allow the CBIOS to pick it up
+0949   04BF             ; 0 = SIO A, 1 = SIO B
+0950   04BF             		
+0951   04BF 3A 8A 40    		ld	A,(primaryIO)
+0952   04C2 F5          		PUSH	AF
+0953   04C3 2A FE FF    		ld	HL,($FFFE)
+0954   04C6 E9          		jp	(HL)
+0955   04C7             
+0956   04C7             
+0957   04C7             ;------------------------------------------------------------------------------
+0958   04C7             
+0959   04C7             ; Read physical sector from host
+0960   04C7             
+0961   04C7             read:
+0962   04C7 F5          		PUSH 	AF
+0963   04C8 C5          		PUSH 	BC
+0964   04C9 E5          		PUSH 	HL
+0965   04CA             
+0966   04CA CD EB 04    		CALL 	cfWait
+0967   04CD             
+0968   04CD 3E 20       		LD 	A,CF_READ_SEC
+0969   04CF D3 17       		OUT 	(CF_COMMAND),A
+0970   04D1             
+0971   04D1 CD EB 04    		CALL 	cfWait
+0972   04D4             
+0973   04D4 0E 04       		LD 	c,4
+0974   04D6 2A 8C 40    		LD 	HL,(dmaAddr)
+0975   04D9             rd4secs:
+0976   04D9 06 80       		LD 	b,128
+0977   04DB             rdByte:
+0978   04DB 00          		nop
+0979   04DC 00          		nop
+0980   04DD DB 10       		in 	A,(CF_DATA)
+0981   04DF 77          		LD 	(HL),A
+0982   04E0 23          		iNC 	HL
+0983   04E1 05          		dec 	b
+0984   04E2 20 F7       		JR 	NZ, rdByte
+0985   04E4 0D          		dec 	c
+0986   04E5 20 F2       		JR 	NZ,rd4secs
+0987   04E7             
+0988   04E7 E1          		POP 	HL
+0989   04E8 C1          		POP 	BC
+0990   04E9 F1          		POP 	AF
+0991   04EA             
+0992   04EA C9          		RET
+0993   04EB             
+0994   04EB             
+0995   04EB             ; Wait for disk to be ready (busy=0,ready=1)
+0996   04EB             cfWait:
+0997   04EB F5          		PUSH 	AF
+0998   04EC             cfWait1:
+0999   04EC DB 17       		in 	A,(CF_STATUS)
+1000   04EE E6 80       		AND 	080H
+1001   04F0 FE 80       		cp 	080H
+1002   04F2 28 F8       		JR	Z,cfWait1
+1003   04F4 F1          		POP 	AF
+1004   04F5 C9          		RET
+1005   04F6             
+1006   04F6             ;------------------------------------------------------------------------------
+1007   04F6             
+1008   04F6 5A3830205342SIGNON	.BYTE	"Z80 SBC Boot ROM 1.1"
+1008   04FC 4320426F6F7420524F4D20312E31
+1009   050A 20627920472E		.BYTE	" by G. Searle"
+1009   0510 20536561726C65
+1010   0517 0D 0A       		.BYTE	$0D,$0A
+1011   0519 0D 0A       		.BYTE	$0D,$0A
+1012   051B 53657269616C		.BYTE	"Serial B = 9600 (default)"
+1012   0521 2042203D2039363030202864656661756C7429
+1013   0534 0D 0A       		.BYTE	$0D,$0A
+1014   0536 474646453820		.BYTE	"GFFE8 - Move 4100h to"
+1014   053C 2D204D6F766520343130306820746F
+1015   054B 203130306820		.BYTE	" 100h and start CP/M"
+1015   0551 616E642073746172742043502F4D
+1016   055F 0D 0A       		.BYTE	$0D,$0A
+1017   0561 0D 0A       		.BYTE	$0D,$0A
+1018   0563 54797065203F		.BYTE	"Type ? for options"
+1018   0569 20666F72206F7074696F6E73
+1019   0575 0D 0A 00    		.BYTE	$0D,$0A,$00
+1020   0578             
+1021   0578 0D 0A       STR_S	.BYTE	$0D,$0A
+1022   057A 0D 0A       		.BYTE	$0D,$0A
+1023   057C 53657269616C		.BYTE	"Serial Port B  config"
+1023   0582 20506F727420422020636F6E666967
+1024   0591 202864656661		.BYTE	" (default 9600)"
+1024   0597 756C74203936303029
+1025   05A0 0D 0A       		.BYTE	$0D,$0A
+1026   05A2 507265737320		.BYTE	"Press 0-9 to config"
+1026   05A8 302D3920746F20636F6E666967
+1027   05B5 0D 0A       		.BYTE	$0D,$0A
+1028   05B7 0D 0A       		.BYTE	$0D,$0A
+1029   05B9 30202D203537		.BYTE	"0 - 57600"
+1029   05BF 363030
+1030   05C2 0D 0A       		.BYTE	$0D,$0A
+1031   05C4 31202D203238		.BYTE	"1 - 28800"
+1031   05CA 383030
+1032   05CD 0D 0A       		.BYTE	$0D,$0A
+1033   05CF 32202D203139		.BYTE	"2 - 19200"
+1033   05D5 323030
+1034   05D8 0D 0A       		.BYTE	$0D,$0A
+1035   05DA 33202D203134		.BYTE	"3 - 14400"
+1035   05E0 343030
+1036   05E3 0D 0A       		.BYTE	$0D,$0A
+1037   05E5 34202D203936		.BYTE	"4 - 9600 - Default"
+1037   05EB 3030202D2044656661756C74
+1038   05F7 0D 0A       		.BYTE	$0D,$0A
+1039   05F9 35202D203438		.BYTE	"5 - 4800"
+1039   05FF 3030
+1040   0601 0D 0A       		.BYTE	$0D,$0A
+1041   0603 36202D203234		.BYTE	"6 - 2400"
+1041   0609 3030
+1042   060B 0D 0A       		.BYTE	$0D,$0A
+1043   060D 37202D203132		.BYTE	"7 - 1200"
+1043   0613 3030
+1044   0615 0D 0A       		.BYTE	$0D,$0A
+1045   0617 38202D203630		.BYTE	"8 - 600"
+1045   061D 30
+1046   061E 0D 0A       		.BYTE	$0D,$0A
+1047   0620 39202D203330		.BYTE	"9 - 300"
+1047   0626 30
+1048   0627 0D 0A       		.BYTE	$0D,$0A
+1049   0629 0D 0A 00    		.BYTE	$0D,$0A,$00
+1050   062C             
+1051   062C 0D 0A       STR_S_OK	.BYTE	$0D,$0A
+1052   062E 53657269616C		.BYTE	"Serial config - OK"
+1052   0634 20636F6E666967202D204F4B
+1053   0640 0D 0A       		.BYTE	$0D,$0A
+1054   0642 0D 0A 00    		.BYTE	$0D,$0A,$00
+1055   0645             
+1056   0645             BASTXT
+1057   0645 0D 0A       		.BYTE	$0D,$0A
+1058   0647 436F6C64206F		.TEXT	"Cold or Warm ?"
+1058   064D 72205761726D203F
+1059   0655 0D 0A 00    		.BYTE	$0D,$0A,$00
+1060   0658             
+1061   0658 436865636B73CKSUMERR	.BYTE	"Checksum error"
+1061   065E 756D206572726F72
+1062   0666 0D 0A 00    		.BYTE	$0D,$0A,$00
+1063   0669             
+1064   0669             INITTXT  
+1065   0669 0C          		.BYTE	$0C
+1066   066A 507265737320		.TEXT	"Press [SPACE] to activate console"
+1066   0670 5B53504143455D20746F20616374697661746520636F6E736F6C65
+1067   068B 0D 0A 00    		.BYTE	$0D,$0A, $00
+1068   068E             
+1069   068E             LDETXT  
+1070   068E 4C6F61642063		.TEXT	"Load complete."
+1070   0694 6F6D706C6574652E
+1071   069C 0D 0A 00    		.BYTE	$0D,$0A, $00
+1072   069F             
+1073   069F             
+1074   069F             HLPTXT
+1075   069F 0D 0A       		.BYTE	$0D,$0A
+1076   06A1 522020202020		.TEXT	"R           - Reset"
+1076   06A7 2020202020202D205265736574
+1077   06B4 0D 0A       		.BYTE	$0D,$0A
+1078   06B6 532020202020		.TEXT	"S           - Serial port B config"
+1078   06BC 2020202020202D2053657269616C20706F7274204220636F6E666967
+1079   06D8 0D 0A       		.BYTE	$0D,$0A
+1080   06DA 4243206F7220		.TEXT	"BC or BW    - ROM BASIC Cold or Warm"
+1080   06E0 4257202020202D20524F4D20424153494320436F6C64206F72205761726D
+1081   06FE 0D 0A       		.BYTE	$0D,$0A
+1082   0700 582020202020		.TEXT	"X           - Boot CP/M (load $D000-$FFFF from disk)"
+1082   0706 2020202020202D20426F6F742043502F4D20286C6F61642024443030302D24464646462066726F6D206469736B29
+1083   0734 0D 0A       		.BYTE	$0D,$0A
+1084   0736 3A6E6E6E6E6E		.TEXT	":nnnnnn...  - Load Intel-Hex file record"
+1084   073C 6E2E2E2E20202D204C6F616420496E74656C2D4865782066696C65207265636F7264
+1085   075E 0D 0A       		.BYTE	$0D,$0A
+1086   0760 00                  	.BYTE   $00
+1087   0761             
+1088   0761             ;------------------------------------------------------------------------------
+1089   0761             
+1090   0761             FINIS		.END	
+1091   0761             
+tasm: Number of errors = 0

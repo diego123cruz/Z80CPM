@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>CP/M Intel Hex converter</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080">
+<script language="JavaScript">
+
+function convert(form, N) {
+  // convert input value to upper case
+  strN = new String(N);
+  strN = strN.toUpperCase();
+  saida = new String()
+
+  const splitLines = strN.split(/\r?\n/);                        // separa as linhas
+
+  count = 0
+  splitLines.forEach (line => {
+    if (count < (splitLines.length - 1)) {
+      line = line.replace(":", "")                            // remove char :
+      line = (line.substr(0, 2) + '4' + line.substr(3))       // move 100h para 4100h
+      line = line.substr(0, line.length - 2)                  // remove chacksum atual
+
+      checkSum = calc_checkSum(line)                          // calcula novo checkSum
+
+      saida = saida + ":" + line + checkSum + "\n"            // gera nova saida
+    } else {
+      saida = saida + line                                    // para a ultima linha não precisa alterar nada
+    }
+    count++
+  })
+
+  form.SAIDA.value = saida
+  let total = (N.length / 256)
+  form.EXAMPLE.value = "SAVE " + total.toFixed(0) + " NAME.COM" 
+}
+
+function calc_checkSum(line) {
+strHex = new String("0123456789ABCDEF");
+result = 0;
+fctr = 16;
+
+for (i=0; i<line.length; i++) {
+  if (line.charAt(i) == " ") continue;
+
+  v = strHex.indexOf(line.charAt(i));
+  if (v < 0) {
+     result = -1;
+     break; 
+  } 
+  result += v * fctr;
+
+  if (fctr == 16) fctr = 1;
+  else            fctr = 16;
+}
+
+if (result < 0) {
+   strResult = new String("Non-hex character");
+}
+else if (fctr == 1) {
+   strResult = new String("Odd number of characters");
+}
+else {
+   result = (~(result & 0xff) + 1) & 0xFF;
+   strResult = strHex.charAt(Math.floor(result/16)) + strHex.charAt(result%16);
+}
+  return strResult;
+}
+
+function clear_facts(form) {
+  form.SAIDA.value  = " ";
+}
+
+// -->
+</script>
+
+<h2>CP/M Intel Hex converter - Diego Cruz 10/2021</h2>
+<p>
+
+</p><h3>Convert 100h to 4100h with checkSum to load hex</h3>
+
+<form name="icalc">
+  <p>
+  Intel hex: <p><textarea rows="10" cols="80" name="N" onchange="clear_facts(this.form)"></textarea>
+  <br>
+  <br>
+  Saida CP/M: <p><textarea rows="10" cols="80" name="SAIDA"></textarea>
+  <p>
+  <p> 1 - Start CP/M - To load function GFFE8 in memory<br> 
+      2 - Cold Reset - Back to monitor <br>
+      3 - Load Hex - Paste hex code<br>
+      4 - <b>GFFE8</b> - Move 4100h to 100h and start CP/M <br>
+      5 - Save file, next command
+  </p>
+  <input type="text" name="EXAMPLE" value="SAVE 0 NAME.COM" size="80"></button>
+  <br><br><br>
+  <input type="button" name="calc" value="Convert" onclick="convert(this.form, this.form.N.value)">
+  <br> <br>
+</form>
+
+</body></html>
