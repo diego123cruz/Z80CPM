@@ -1,0 +1,512 @@
+0001   0000             SIOA_D		.EQU	$00
+0002   0000             SIOA_C		.EQU	$02
+0003   0000             SIOB_D		.EQU	$01
+0004   0000             SIOB_C		.EQU	$03
+0005   0000             
+0006   0000             KEY         .EQU    $60
+0007   0000             
+0008   0000             lcd_comm_port .equ $50
+0009   0000             lcd_data_port .equ $51
+0010   0000             
+0011   0100             .org 100h
+0012   0100             
+0013   0100 CD 4B 03        CALL INIT_LCD
+0014   0103 CD 81 01        CALL INIT_CONSOLE
+0015   0106             
+0016   0106             MAIN:
+0017   0106 DB 60           in A, (KEY)
+0018   0108 CB 47           bit 0, A
+0019   010A CA 57 02        JP  Z, PAUSE
+0020   010D             
+0021   010D CB 4F           bit 1, A
+0022   010F CA 81 02        JP  Z, V_MAIS
+0023   0112             
+0024   0112 CB 57           bit 2, A
+0025   0114 CA 65 02        JP  Z, NEXT
+0026   0117             
+0027   0117 CB 5F           bit 3, A
+0028   0119 CA 8F 02        JP  Z, V_MENOS
+0029   011C             
+0030   011C CB 67           bit 4, A
+0031   011E CA 73 02        JP  Z, PREV
+0032   0121             
+0033   0121 CB 6F           bit 5, A
+0034   0123 CA 49 02        JP  Z, PLAY
+0035   0126             
+0036   0126 CB 77           bit 6, A
+0037   0128 CA 3B 02        JP  Z, REPEAT_ALL
+0038   012B             
+0039   012B CB 7F           bit 7, A
+0040   012D CA 2D 02        JP  Z, STOP_ALL
+0041   0130             
+0042   0130             ; -----------------------------------------------------
+0043   0130             ; Console input
+0044   0130             ; -----------------------------------------------------
+0045   0130 0E 0B           ld  c, 0Bh ; read status serial
+0046   0132 CD 05 00        CALL 0005h
+0047   0135 FE 00           cp  0
+0048   0137 CA 06 01        JP  Z, MAIN
+0049   013A             
+0050   013A 0E 01           ld  c, 01h ; read serial, while(read != nil)
+0051   013C CD 05 00        CALL 0005h
+0052   013F             
+0053   013F FE 31           cp  '1'
+0054   0141 CA 49 02        JP  Z, PLAY
+0055   0144             
+0056   0144 FE 32           cp  '2'
+0057   0146 CA 57 02        JP  Z, PAUSE
+0058   0149             
+0059   0149 FE 33           cp  '3'
+0060   014B CA 65 02        JP  Z, NEXT
+0061   014E             
+0062   014E FE 34           cp  '4'
+0063   0150 CA 73 02        JP  Z, PREV
+0064   0153             
+0065   0153 FE 35           cp  '5'
+0066   0155 CA 81 02        JP  Z, V_MAIS
+0067   0158             
+0068   0158 FE 36           cp  '6'
+0069   015A CA 8F 02        JP  Z, V_MENOS
+0070   015D             
+0071   015D FE 37           cp  '7'
+0072   015F CA 3B 02        JP  Z, REPEAT_ALL
+0073   0162             
+0074   0162 FE 39           cp  '9'
+0075   0164 CA 2D 02        JP  Z, STOP_ALL
+0076   0167             
+0077   0167 C3 06 01        JP MAIN
+0078   016A             
+0079   016A             
+0080   016A             EXIT:
+0081   016A CD 43 04        CALL delay
+0082   016D CD 43 04        CALL delay
+0083   0170 CD 43 04        CALL delay
+0084   0173 CD 43 04        CALL delay
+0085   0176 CD 43 04        CALL delay
+0086   0179             
+0087   0179 3E 01           ld a,lcd_cls
+0088   017B CD 10 04    	call lcd_send_command
+0089   017E C3 00 00        JP  0
+0090   0181             
+0091   0181             ; -----------------------------------------------------
+0092   0181             ; Local console
+0093   0181             ; -----------------------------------------------------
+0094   0181             INIT_CONSOLE:
+0095   0181 0E 09           ld  c, 09h
+0096   0183 11 8A 01        ld  de, INFO
+0097   0186 CD 05 00        CALL    0005h
+0098   0189                 
+0099   0189             
+0100   0189 C9              ret
+0101   018A             
+0102   018A             INFO:   
+0103   018A 0C                  .DB      12
+0104   018B 4D503320506C        .DB      "MP3 Player - "
+0104   0191 61796572202D20
+0105   0198 444945474F20        .DB      "DIEGO CRUZ 10/2021", 13, 10
+0105   019E 4352555A2031302F323032310D0A
+0106   01AC 4D6F64756C6F        .DB      "Modulo: FN-M16P-MP3", 13, 10
+0106   01B2 3A20464E2D4D3136502D4D50330D0A
+0107   01C1 0D 0A               .DB      13, 10
+0108   01C3 31202D20506C        .DB      "1 - Play", 13, 10
+0108   01C9 61790D0A
+0109   01CD 32202D205061        .DB      "2 - Pause", 13, 10
+0109   01D3 7573650D0A
+0110   01D8 33202D204E65        .DB      "3 - Next", 13, 10
+0110   01DE 78740D0A
+0111   01E2 34202D205072        .DB      "4 - Prev", 13, 10
+0111   01E8 65760D0A
+0112   01EC 35202D20566F        .DB      "5 - Vol +", 13, 10
+0112   01F2 6C202B0D0A
+0113   01F7 36202D20566F        .DB      "6 - Vol -", 13, 10
+0113   01FD 6C202D0D0A
+0114   0202 37202D205265        .DB      "7 - Repeat all", 13, 10
+0114   0208 7065617420616C6C0D0A
+0115   0212 38202D204E2F        .DB      "8 - N/D", 13, 10
+0115   0218 440D0A
+0116   021B 39202D205374        .DB      "9 - Stop / Exit", 13, 10, '$'
+0116   0221 6F70202F20457869740D0A24
+0117   022D             
+0118   022D             
+0119   022D             
+0120   022D             
+0121   022D             
+0122   022D             
+0123   022D             
+0124   022D             
+0125   022D             
+0126   022D             STOP_ALL:
+0127   022D 21 EE 03        ld hl, S_STOP
+0128   0230 CD 40 03        CALL    LCD_SEND
+0129   0233 0E 16           ld  c, $16 ; stop
+0130   0235 CD E2 02        CALL SEND_COMMAND
+0131   0238 C3 6A 01        JP  EXIT
+0132   023B             
+0133   023B             
+0134   023B             REPEAT_ALL:
+0135   023B 21 FF 03        ld hl, S_REPETE
+0136   023E CD 40 03        CALL    LCD_SEND
+0137   0241 0E 11           ld  c, $11 ; REPET ALL
+0138   0243 CD 9D 02        CALL SEND_COMMAND_P1
+0139   0246 C3 06 01        JP  MAIN
+0140   0249             
+0141   0249             PLAY:
+0142   0249 21 88 03        ld hl, S_PLAY
+0143   024C CD 40 03        CALL    LCD_SEND
+0144   024F 0E 0D           ld  C, $0D          ; command play
+0145   0251 CD E2 02        CALL SEND_COMMAND
+0146   0254 C3 06 01        JP  MAIN
+0147   0257             
+0148   0257             PAUSE:
+0149   0257 21 99 03        ld hl, S_PAUSE
+0150   025A CD 40 03        CALL    LCD_SEND
+0151   025D 0E 0E           ld  C, $0E          ; command pause
+0152   025F CD E2 02        CALL SEND_COMMAND
+0153   0262 C3 06 01        JP  MAIN
+0154   0265             
+0155   0265             NEXT:
+0156   0265 21 AA 03        ld hl, S_NEXT
+0157   0268 CD 40 03        CALL    LCD_SEND
+0158   026B 0E 01           ld  C, $01          ; command next
+0159   026D CD E2 02        CALL SEND_COMMAND
+0160   0270 C3 06 01        JP  MAIN
+0161   0273             
+0162   0273             PREV:
+0163   0273 21 BB 03        ld hl, S_PREV
+0164   0276 CD 40 03        CALL    LCD_SEND
+0165   0279 0E 02           ld  C, $02          ; command prev
+0166   027B CD E2 02        CALL SEND_COMMAND
+0167   027E C3 06 01        JP  MAIN
+0168   0281             
+0169   0281             V_MAIS:
+0170   0281 21 CC 03        ld hl, S_VOL_MAIS
+0171   0284 CD 40 03        CALL    LCD_SEND
+0172   0287 0E 04           ld  C, $04          ; command volume mais
+0173   0289 CD E2 02        CALL SEND_COMMAND
+0174   028C C3 06 01        JP  MAIN
+0175   028F             
+0176   028F             V_MENOS:
+0177   028F 21 DD 03        ld hl, S_VOL_MENOS
+0178   0292 CD 40 03        CALL    LCD_SEND
+0179   0295 0E 05           ld  C, $05          ; command volume menos
+0180   0297 CD E2 02        CALL SEND_COMMAND
+0181   029A C3 06 01        JP  MAIN
+0182   029D             
+0183   029D             ; COMMAND IN C
+0184   029D             SEND_COMMAND_P1:
+0185   029D             
+0186   029D                 ; calc checksum, return in HL
+0187   029D 06 00           ld  b, $0
+0188   029F 21 06 01        ld  hl, $106
+0189   02A2             
+0190   02A2                 ; soma comando com a constant in hl
+0191   02A2 09              add hl, bc
+0192   02A3             
+0193   02A3                 ; FFFF - HL
+0194   02A3 3E FF           ld  A, $FF
+0195   02A5 94              sub H
+0196   02A6 67              ld  h, A
+0197   02A7             
+0198   02A7 3E FF           ld  A, $FF
+0199   02A9 95              sub L
+0200   02AA 6F              ld  L, A
+0201   02AB             
+0202   02AB                 ; hl + 1
+0203   02AB 16 00           ld  d, $0
+0204   02AD 1E 01           ld  e, $1
+0205   02AF 19              add hl, de
+0206   02B0                 ; ----------------------------------
+0207   02B0             
+0208   02B0             
+0209   02B0 3E 7E           ld  A, $7E          ; start
+0210   02B2 CD 52 04        CALL conoutB
+0211   02B5             
+0212   02B5 3E FF           ld  A, $FF          ; version
+0213   02B7 CD 52 04        CALL conoutB
+0214   02BA             
+0215   02BA 3E 06           ld  A, $06          ; len
+0216   02BC CD 52 04        CALL conoutB
+0217   02BF             
+0218   02BF 79              ld  A, C          ; command in C
+0219   02C0 CD 52 04        CALL conoutB
+0220   02C3             
+0221   02C3 3E 00           ld  A, $00          ; feedback
+0222   02C5 CD 52 04        CALL conoutB
+0223   02C8             
+0224   02C8 3E 00           ld  A, $00          ; 
+0225   02CA CD 52 04        CALL conoutB
+0226   02CD             
+0227   02CD 3E 01           ld  A, $01          ; 
+0228   02CF CD 52 04        CALL conoutB
+0229   02D2             
+0230   02D2 7C              ld  A, H          ; checksum
+0231   02D3 CD 52 04        CALL conoutB
+0232   02D6             
+0233   02D6 7D              ld  A, L          ; checksum
+0234   02D7 CD 52 04        CALL conoutB
+0235   02DA             
+0236   02DA 3E EF           ld  A, $EF          ; end
+0237   02DC CD 52 04        CALL conoutB
+0238   02DF C3 27 03        JP  RET_MAIN
+0239   02E2             
+0240   02E2             
+0241   02E2             ; COMMAND IN C
+0242   02E2             SEND_COMMAND:
+0243   02E2             
+0244   02E2                 ; calc checksum, return in HL
+0245   02E2 06 00           ld  b, $0
+0246   02E4 21 05 01        ld  hl, $105
+0247   02E7             
+0248   02E7                 ; soma comando com a constant in hl
+0249   02E7 09              add hl, bc
+0250   02E8             
+0251   02E8                 ; FFFF - HL
+0252   02E8 3E FF           ld  A, $FF
+0253   02EA 94              sub H
+0254   02EB 67              ld  h, A
+0255   02EC             
+0256   02EC 3E FF           ld  A, $FF
+0257   02EE 95              sub L
+0258   02EF 6F              ld  L, A
+0259   02F0             
+0260   02F0                 ; hl + 1
+0261   02F0 16 00           ld  d, $0
+0262   02F2 1E 01           ld  e, $1
+0263   02F4 19              add hl, de
+0264   02F5                 ; ----------------------------------
+0265   02F5             
+0266   02F5             
+0267   02F5 3E 7E           ld  A, $7E          ; start
+0268   02F7 CD 52 04        CALL conoutB
+0269   02FA             
+0270   02FA 3E FF           ld  A, $FF          ; version
+0271   02FC CD 52 04        CALL conoutB
+0272   02FF             
+0273   02FF 3E 06           ld  A, $06          ; len
+0274   0301 CD 52 04        CALL conoutB
+0275   0304             
+0276   0304 79              ld  A, C          ; command in C
+0277   0305 CD 52 04        CALL conoutB
+0278   0308             
+0279   0308 3E 00           ld  A, $00          ; feedback
+0280   030A CD 52 04        CALL conoutB
+0281   030D             
+0282   030D 3E 00           ld  A, $00          ; 
+0283   030F CD 52 04        CALL conoutB
+0284   0312             
+0285   0312 3E 00           ld  A, $00          ; 
+0286   0314 CD 52 04        CALL conoutB
+0287   0317             
+0288   0317 7C              ld  A, H          ; checksum
+0289   0318 CD 52 04        CALL conoutB
+0290   031B             
+0291   031B 7D              ld  A, L          ; checksum
+0292   031C CD 52 04        CALL conoutB
+0293   031F             
+0294   031F 3E EF           ld  A, $EF          ; end
+0295   0321 CD 52 04        CALL conoutB
+0296   0324 C3 27 03        JP  RET_MAIN
+0297   0327             
+0298   0327             
+0299   0327             
+0300   0327             
+0301   0327             RET_MAIN:
+0302   0327 CD 43 04        call    delay
+0303   032A CD 43 04        call    delay
+0304   032D CD 43 04        call    delay
+0305   0330 CD 43 04        call    delay
+0306   0333 CD 43 04        call    delay
+0307   0336 21 77 03        ld hl, S_EMPTY
+0308   0339 CD 40 03        CALL    LCD_SEND
+0309   033C CD 81 01        CALL    INIT_CONSOLE
+0310   033F C9              RET
+0311   0340             
+0312   0340             
+0313   0340             
+0314   0340             
+0315   0340             ; ===================================================================
+0316   0340             ; DISPLAY LCD
+0317   0340             ; ===================================================================
+0318   0340             lcd_set_8bit        .EQU    $3f	; 8-bit port, 2-line display
+0319   0340             lcd_cursor_on       .EQU    $0f	; Turn cursors on
+0320   0340             lcd_cls             .EQU    $01 ; Clear the display
+0321   0340             lcd_line2           .EQU    $C0 ; Force cursor to beginning (2nd line)
+0322   0340             lcd_dispOnCurOff    .EQU    $0C ; Display On, Cursor Off
+0323   0340             
+0324   0340             LCD_SEND:
+0325   0340 F5              PUSH    AF
+0326   0341 3E C0           ld a, lcd_line2
+0327   0343 CD 10 04    	call lcd_send_command
+0328   0346 F1              POP     AF
+0329   0347 CD 2C 04    	call lcd_send_asciiz
+0330   034A C9              RET
+0331   034B             
+0332   034B             	
+0333   034B             INIT_LCD:
+0334   034B             	;Initialisation
+0335   034B 3E 3F       	ld a,lcd_set_8bit
+0336   034D CD 10 04    	call lcd_send_command
+0337   0350             	
+0338   0350 3E 0F       	ld a,lcd_cursor_on
+0339   0352 CD 10 04    	call lcd_send_command
+0340   0355             	
+0341   0355 3E 01       	ld a,lcd_cls
+0342   0357 CD 10 04    	call lcd_send_command
+0343   035A             
+0344   035A 3E 0C           ld a, lcd_dispOnCurOff
+0345   035C CD 10 04    	call lcd_send_command
+0346   035F             	
+0347   035F             	;Send a string
+0348   035F 21 66 03    	ld hl, hello
+0349   0362 CD 2C 04    	call lcd_send_asciiz
+0350   0365             	
+0351   0365 C9          	ret
+0352   0366             	
+0353   0366             hello:
+0354   0366 2020204D5033	.db "   MP3 Player   ", 0
+0354   036C 20506C6179657220202000
+0355   0377             
+0356   0377             S_EMPTY:
+0357   0377 202020202020    .db "                ", 0
+0357   037D 2020202020202020202000
+0358   0388             
+0359   0388             S_PLAY:
+0360   0388 202020202020	.db "      Play      ", 0
+0360   038E 506C617920202020202000
+0361   0399             
+0362   0399             S_PAUSE:
+0363   0399 202020202020    .db "      Pause     ", 0
+0363   039F 5061757365202020202000
+0364   03AA             
+0365   03AA             S_NEXT:
+0366   03AA 202020202020    .db "      Next      ", 0
+0366   03B0 4E65787420202020202000
+0367   03BB             
+0368   03BB             S_PREV:
+0369   03BB 202020202020    .db "      Prev      ", 0
+0369   03C1 5072657620202020202000
+0370   03CC             
+0371   03CC             S_VOL_MAIS:
+0372   03CC 202020202020    .db "      Vol +     ", 0
+0372   03D2 566F6C202B202020202000
+0373   03DD             
+0374   03DD             S_VOL_MENOS:
+0375   03DD 202020202020    .db "      Vol -     ", 0
+0375   03E3 566F6C202D202020202000
+0376   03EE             
+0377   03EE             S_STOP:
+0378   03EE 2053746F702C    .db " Stop, See you! ", 0
+0378   03F4 2053656520796F75212000
+0379   03FF             
+0380   03FF             S_REPETE:
+0381   03FF 202020526570    .db "   Repeat all   ", 0
+0381   0405 65617420616C6C20202000
+0382   0410             	
+0383   0410             	
+0384   0410             ;******************
+0385   0410             ;Send a command byte to the LCD
+0386   0410             ;Entry: A= command byte
+0387   0410             ;Exit: All preserved
+0388   0410             ;******************
+0389   0410             lcd_send_command:
+0390   0410 C5          	push bc				;Preserve
+0391   0411 0E 50       	ld c,lcd_comm_port	;Command port
+0392   0413             	
+0393   0413             lcd_command_wait_loop:	;Busy wait
+0394   0413 ED 40       	in b,(c)			;Read status byte
+0395   0415 CB 10       	rl b				;Shift busy bit into carry flag
+0396   0417 38 FA       	jr c,lcd_command_wait_loop	;While busy
+0397   0419             	
+0398   0419 ED 79       	out (c),a			;Send command
+0399   041B C1          	pop bc				;Restore
+0400   041C C9          	ret
+0401   041D             	
+0402   041D             ;******************
+0403   041D             ;Send a data byte to the LCD
+0404   041D             ;Entry: A= data byte
+0405   041D             ;Exit: All preserved
+0406   041D             ;******************
+0407   041D             lcd_send_data:
+0408   041D C5          	push bc				;Preserve
+0409   041E 0E 50       	ld c,lcd_comm_port	;Command port
+0410   0420             	
+0411   0420             lcd_data_wait_loop:	;Busy wait
+0412   0420 ED 40       	in b,(c)			;Read status byte
+0413   0422 CB 10       	rl b				;Shift busy bit into carry flag
+0414   0424 38 FA       	jr c,lcd_data_wait_loop	;While busy
+0415   0426             	
+0416   0426 0E 51       	ld c,lcd_data_port	;Data port
+0417   0428 ED 79       	out (c),a			;Send data
+0418   042A C1          	pop bc				;Restore
+0419   042B C9          	ret
+0420   042C             	
+0421   042C             ;******************
+0422   042C             ;Send an asciiz string to the LCD
+0423   042C             ;Entry: HL=address of string
+0424   042C             ;Exit: HL=address of ending zero of the string. All others preserved
+0425   042C             ;******************
+0426   042C             lcd_send_asciiz:
+0427   042C F5          	push af
+0428   042D C5          	push bc				;Preserve
+0429   042E             lcd_asciiz_char_loop
+0430   042E 0E 50       	ld c,lcd_comm_port	;Command port
+0431   0430             	
+0432   0430             lcd_asciiz_wait_loop:	;Busy wait
+0433   0430 ED 78       	in a,(c)			;Read status byte
+0434   0432 07          	rlca				;Shift busy bit into carry flag
+0435   0433 38 FB       	jr c,lcd_asciiz_wait_loop	;While busy
+0436   0435             	
+0437   0435 7E          	ld a,(hl)			;Get character
+0438   0436 A7          	and a				;Is it zero?
+0439   0437 28 07       	jr z,lcd_asciiz_done	;If so, we're done
+0440   0439             	
+0441   0439 0E 51       	ld c,lcd_data_port	;Data port
+0442   043B ED 79       	out (c),a			;Send data
+0443   043D 23          	inc hl				;Next char
+0444   043E 18 EE       	jr lcd_asciiz_char_loop
+0445   0440             	
+0446   0440             lcd_asciiz_done:
+0447   0440 C1          	pop bc				;Restore
+0448   0441 F1          	pop af
+0449   0442 C9          	ret
+0450   0443             .end 
+0451   0443             
+0452   0443             ; ===================================================================
+0453   0443             ; DELAY
+0454   0443             ; ===================================================================
+0455   0443             delay:
+0456   0443 C5          	push bc
+0457   0444 06 FF           ld b, 255
+0458   0446             delay_loop_b:
+0459   0446 0E FF       	ld c, 255
+0460   0448             delay_loop:
+0461   0448 0D          	dec c
+0462   0449 C2 48 04        jp nz, delay_loop
+0463   044C 05              dec b
+0464   044D C2 46 04        jp nz, delay_loop_b
+0465   0450 C1              pop bc
+0466   0451 C9              ret
+0467   0452             
+0468   0452             ; ===================================================================
+0469   0452             ; SERIAL B
+0470   0452             ; ===================================================================
+0471   0452             conoutB:
+0472   0452 F5          		PUSH	AF
+0473   0453             
+0474   0453 CD 5C 04    conoutB1:	CALL	CKSIOB		; See if SIO channel B is finished transmitting
+0475   0456 28 FB       		JR	Z,conoutB1	; Loop until SIO flag signals ready
+0476   0458 F1          		POP	AF		; RETrieve character
+0477   0459 D3 01       		OUT	(SIOB_D),A	; OUTput the character
+0478   045B C9          		RET
+0479   045C             
+0480   045C             
+0481   045C             CKSIOB
+0482   045C 97          		SUB	A
+0483   045D D3 03       		OUT 	(SIOB_C),A
+0484   045F DB 03       		IN   	A,(SIOB_C)	; Status byte D2=TX Buff Empty, D0=RX char ready	
+0485   0461 0F          		RRCA			; Rotates RX status into Carry Flag,	
+0486   0462 CB 4F       		BIT  	1,A		; Set Zero flag if still transmitting character	
+0487   0464 C9                  	RET
+0488   0465             
+0489   0465             .end 
+tasm: Number of errors = 0

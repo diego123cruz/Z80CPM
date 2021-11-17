@@ -1,0 +1,103 @@
+0001   0100             .org $100
+0002   0100             	
+0003   0100             lcd_comm_port .equ $50	;Port addresses. Change as needed.
+0004   0100             lcd_data_port .equ $51
+0005   0100             	
+0006   0100             lcd_set_8bit .equ $3f	;8-bit port, 2-line display
+0007   0100             lcd_cursor_on .equ $0f	;Turn cursors on
+0008   0100             lcd_cls .equ $01			;Clear the display
+0009   0100             	
+0010   0100             	;Initialisation
+0011   0100 3E 3F       	ld a,lcd_set_8bit
+0012   0102 CD 29 01    	call lcd_send_command
+0013   0105             	
+0014   0105 3E 0F       	ld a,lcd_cursor_on
+0015   0107 CD 29 01    	call lcd_send_command
+0016   010A             	
+0017   010A 3E 01       	ld a,lcd_cls
+0018   010C CD 29 01    	call lcd_send_command
+0019   010F             	
+0020   010F             	;Send a single character
+0021   010F 3E 3E       	ld a,'>'
+0022   0111 CD 36 01    	call lcd_send_data
+0023   0114             	
+0024   0114             	;Send a string
+0025   0114 21 1B 01    	ld hl,hello_world
+0026   0117 CD 45 01    	call lcd_send_asciiz
+0027   011A             	
+0028   011A C9          	ret
+0029   011B             	
+0030   011B             hello_world:
+0031   011B 48656C6C6F2C	.db "Hello, world!",0
+0031   0121 20776F726C642100
+0032   0129             	
+0033   0129             	
+0034   0129             ;******************
+0035   0129             ;Send a command byte to the LCD
+0036   0129             ;Entry: A= command byte
+0037   0129             ;Exit: All preserved
+0038   0129             ;******************
+0039   0129             lcd_send_command:
+0040   0129 C5          	push bc				;Preserve
+0041   012A 0E 50       	ld c,lcd_comm_port	;Command port
+0042   012C             	
+0043   012C             lcd_command_wait_loop:	;Busy wait
+0044   012C ED 40       	in b,(c)			;Read status byte
+0045   012E CB 10       	rl b				;Shift busy bit into carry flag
+0046   0130 38 FA       	jr c,lcd_command_wait_loop	;While busy
+0047   0132             	
+0048   0132 ED 79       	out (c),a			;Send command
+0049   0134 C1          	pop bc				;Restore
+0050   0135 C9          	ret
+0051   0136             	
+0052   0136             ;******************
+0053   0136             ;Send a data byte to the LCD
+0054   0136             ;Entry: A= data byte
+0055   0136             ;Exit: All preserved
+0056   0136             ;******************
+0057   0136             lcd_send_data:
+0058   0136 C5          	push bc				;Preserve
+0059   0137 0E 50       	ld c,lcd_comm_port	;Command port
+0060   0139             	
+0061   0139             lcd_data_wait_loop:	;Busy wait
+0062   0139 ED 40       	in b,(c)			;Read status byte
+0063   013B CB 10       	rl b				;Shift busy bit into carry flag
+0064   013D 38 FA       	jr c,lcd_data_wait_loop	;While busy
+0065   013F             	
+0066   013F 0E 51       	ld c,lcd_data_port	;Data port
+0067   0141 ED 79       	out (c),a			;Send data
+0068   0143 C1          	pop bc				;Restore
+0069   0144 C9          	ret
+0070   0145             	
+0071   0145             ;******************
+0072   0145             ;Send an asciiz string to the LCD
+0073   0145             ;Entry: HL=address of string
+0074   0145             ;Exit: HL=address of ending zero of the string. All others preserved
+0075   0145             ;******************
+0076   0145             lcd_send_asciiz:
+0077   0145 F5          	push af
+0078   0146 C5          	push bc				;Preserve
+0079   0147             lcd_asciiz_char_loop
+0080   0147 0E 50       	ld c,lcd_comm_port	;Command port
+0081   0149             	
+0082   0149             lcd_asciiz_wait_loop:	;Busy wait
+0083   0149 ED 78       	in a,(c)			;Read status byte
+0084   014B 07          	rlca				;Shift busy bit into carry flag
+0085   014C 38 FB       	jr c,lcd_asciiz_wait_loop	;While busy
+0086   014E             	
+0087   014E 7E          	ld a,(hl)			;Get character
+0088   014F A7          	and a				;Is it zero?
+0089   0150 28 07       	jr z,lcd_asciiz_done	;If so, we're done
+0090   0152             	
+0091   0152 0E 51       	ld c,lcd_data_port	;Data port
+0092   0154 ED 79       	out (c),a			;Send data
+0093   0156 23          	inc hl				;Next char
+0094   0157 18 EE       	jr lcd_asciiz_char_loop
+0095   0159             	
+0096   0159             lcd_asciiz_done:
+0097   0159 C1          	pop bc				;Restore
+0098   015A F1          	pop af
+0099   015B C9          	ret
+0100   015C             .end 
+0101   015C             
+tasm: Number of errors = 0
